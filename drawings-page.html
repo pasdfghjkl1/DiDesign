@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DI Studio - Чертежи и проектная документация</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c5530;
+            --primary-light: #6c9c84;
+            --secondary-color: #d4a574;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+            --bg-light: #fafafa;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+            --gradient: linear-gradient(135deg, #2c5530 0%, #6c9c84 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Навигация */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-item {
+            margin-left: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        /* Заголовок страницы */
+        .page-header {
+            padding-top: 150px;
+            padding-bottom: 100px;
+            background: var(--bg-light);
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .page-description {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        /* Секции */
+        .section {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 3rem;
+        }
+
+        /* Чертежи */
+        .drawings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .drawing-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .drawing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .drawing-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .drawing-content {
+            padding: 2rem;
+        }
+
+        .drawing-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .drawing-content p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .drawing-features {
+            list-style: none;
+        }
+
+        .drawing-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .drawing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .drawing-features li::before {
+            content: '✓';
+            color: var(--primary-light);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* Футер */
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 50px 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .drawings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">DI</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link">Главная</a></li>
+                <li class="nav-item"><a href="portfolio-demo-complete.html" class="nav-link">Портфолио</a></li>
+                <li class="nav-item"><a href="services-page.html" class="nav-link">Услуги</a></li>
+                <li class="nav-item"><a href="drawings-page.html" class="nav-link">Чертежи</a></li>
+                <li class="nav-item"><a href="about-page.html" class="nav-link">О нас</a></li>
+                <li class="nav-item"><a href="index.html#contact" class="nav-link">Контакты</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Заголовок страницы -->
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">Чертежи и документация</h1>
+            <p class="page-description">Профессиональная разработка технической документации для точной реализации вашего дизайн-проекта</p>
+        </div>
+    </header>
+
+    <!-- Чертежи -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Типы чертежей</h2>
+            <div class="drawings-grid">
+                <div class="drawing-card">
+                    <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Обмерный план" class="drawing-image">
+                    <div class="drawing-content">
+                        <h3>Обмерный план</h3>
+                        <p>Точный план помещения с указанием всех размеров и особенностей конструкции</p>
+                        <ul class="drawing-features">
+                            <li>Планы помещений с размерами</li>
+                            <li>Высотные отметки</li>
+                            <li>Расположение несущих конструкций</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="drawing-card">
+                    <img src="https://images.unsplash.com/photo-1532617074981-a94af336ff47?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Планировочное решение" class="drawing-image">
+                    <div class="drawing-content">
+                        <h3>Планировочное решение</h3>
+                        <p>Схемы демонтажа и монтажа конструкций в соответствии с новым проектом</p>
+                        <ul class="drawing-features">
+                            <li>План демонтажа перегородок</li>
+                            <li>План возведения новых стен</li>
+                            <li>Экспликация помещений</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="drawing-card">
+                    <img src="https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="План полов" class="drawing-image">
+                    <div class="drawing-content">
+                        <h3>План полов</h3>
+                        <p>Детальный план с указанием типов напольных покрытий и раскладки материалов</p>
+                        <ul class="drawing-features">
+                            <li>Типы напольных покрытий</li>
+                            <li>Схемы раскладки материалов</li>
+                            <li>Отметки уровней полов</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="drawing-card">
+                    <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="План потолков" class="drawing-image">
+                    <div class="drawing-content">
+                        <h3>План потолков</h3>
+                        <p>Схемы потолочных конструкций с размещением светильников и вентиляции</p>
+                        <ul class="drawing-features">
+                            <li>Конструкция потолков</li>
+                            <li>Размещение светильников</li>
+                            <li>Вентиляционные отверстия</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="drawing-card">
+                    <img src="https://images.unsplash.com/photo-1605275239360-ae0fc6a1b4a3?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Развертки стен" class="drawing-image">
+                    <div class="drawing-content">
+                        <h3>Развертки стен</h3>
+                        <p>Детальное изображение всех стен с указанием отделочных материалов</p>
+                        <ul class="drawing-features">
+                            <li>Развертки всех стен</li>
+                            <li>Схемы отделки поверхностей</li>
+                            <li>Расположение мебели</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="drawing-card">
+                    <img src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Схема электрики" class="drawing-image">
+                    <div class="drawing-content">
+                        <h3>Схема электрики</h3>
+                        <p>Планы размещения розеток, выключателей и осветительных приборов</p>
+                        <ul class="drawing-features">
+                            <li>Размещение розеток и выключателей</li>
+                            <li>Схемы освещения</li>
+                            <li>Слаботочные сети</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="index.html" class="footer-logo">DI</a>
+                    <p>Профессиональный дизайн интерьера и проектирование для жилых и коммерческих помещений.</p>
+                </div>
+                <div>
+                    <h3>Услуги</h3>
+                    <ul class="footer-links">
+                        <li><a href="services-page.html">Дизайн интерьера</a></li>
+                        <li><a href="services-page.html">3D-визуализация</a></li>
+                        <li><a href="drawings-page.html">Проектирование</a></li>
+                        <li><a href="drawings-page.html">Чертежи</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Компания</h3>
+                    <ul class="footer-links">
+                        <li><a href="about-page.html">О нас</a></li>
+                        <li><a href="portfolio-demo-complete.html">Портфолио</a></li>
+                        <li><a href="about-page.html">Команда</a></li>
+                        <li><a href="index.html#contact">Контакты</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 DI Studio. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Навигация
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
