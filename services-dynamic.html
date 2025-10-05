@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DI Studio - Услуги и цены</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c5530;
+            --primary-light: #6c9c84;
+            --secondary-color: #d4a574;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+            --bg-light: #fafafa;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+            --gradient: linear-gradient(135deg, #2c5530 0%, #6c9c84 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Навигация */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-item {
+            margin-left: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--text-dark);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+        
+        /* Заголовок страницы */
+        .services-hero {
+            padding-top: 150px;
+            padding-bottom: 80px;
+            text-align: center;
+            background: var(--bg-light);
+        }
+        
+        .services-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .services-hero p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-light);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Услуги */
+        .services-section {
+            padding: 80px 0;
+        }
+
+        .service-category {
+            margin-bottom: 60px;
+        }
+
+        .category-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--primary-light);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .service-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .service-card .description {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .price-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .price-label {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .price-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .price-note {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .service-features {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .service-features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: var(--text-light);
+        }
+
+        .service-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary-light);
+            font-weight: bold;
+        }
+
+        /* Кнопка заказа */
+        .btn-order {
+            display: inline-block;
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .btn-order:hover {
+            background: #b8956b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Футер */
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 50px 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 100%;
+                height: 100vh;
+                background: white;
+                flex-direction: column;
+                justify-content: center;
+                transition: right 0.3s ease;
+                z-index: 999;
+            }
+
+            .nav-menu.active {
+                right: 0;
+            }
+
+            .nav-item {
+                margin: 1rem 0;
+            }
+            
+            .services-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-title {
+                font-size: 2rem;
+            }
+
+            .price-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">DI</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item"><a href="portfolio.html" class="nav-link">Портфолио</a></li>
+                <li class="nav-item"><a href="services-dynamic.html" class="nav-link">Услуги</a></li>
+                <li class="nav-item"><a href="drawings-page.html" class="nav-link">Чертежи</a></li>
+                <li class="nav-item"><a href="about-page.html" class="nav-link">О нас</a></li>
+                <li class="nav-item"><a href="index.html#contact" class="nav-link">Контакты</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Заголовок страницы -->
+    <section class="services-hero">
+        <div class="container">
+            <h1>Наши услуги и цены</h1>
+            <p>Актуальные цены на все виды услуг. Данные обновляются автоматически из Google Таблиц.</p>
+        </div>
+    </section>
+
+    <!-- Услуги -->
+    <section class="services-section">
+        <div class="container" id="services-container">
+            <div class="loading">Загружаем актуальные цены...</div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="index.html" class="footer-logo">DI</a>
+                    <p>Профессиональный дизайн интерьера и проектирование для жилых и коммерческих помещений.</p>
+                </div>
+                <div>
+                    <h3>Услуги</h3>
+                    <ul class="footer-links">
+                        <li><a href="services-dynamic.html">Дизайн интерьера</a></li>
+                        <li><a href="services-dynamic.html">3D-визуализация</a></li>
+                        <li><a href="drawings-page.html">Проектирование</a></li>
+                        <li><a href="drawings-page.html">Чертежи</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Компания</h3>
+                    <ul class="footer-links">
+                        <li><a href="about-page.html">О нас</a></li>
+                        <li><a href="portfolio.html">Портфолио</a></li>
+                        <li><a href="about-page.html">Команда</a></li>
+                        <li><a href="index.html#contact">Контакты</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 DI Studio. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // НАСТРОЙКА: Замените на ID вашей Google Таблицы
+        const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE';
+        const API_KEY = 'YOUR_API_KEY_HERE';
+        const RANGE = 'Лист1!A2:F100'; // Диапазон данных
+
+        // Навигация при скролле
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Мобильное меню
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Загрузка данных из Google Sheets
+        async function loadServicesFromGoogleSheets() {
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.values && data.values.length > 0) {
+                    renderServices(data.values);
+                } else {
+                    showError('Данные не найдены в таблице');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showError('Ошибка загрузки данных. Проверьте настройки.');
+            }
+        }
+
+        // Рендер услуг
+        function renderServices(rows) {
+            const container = document.getElementById('services-container');
+            
+            // Группировка по категориям
+            const categories = {};
+            rows.forEach(row => {
+                const [category, serviceName, description, price, unit, features] = row;
+                
+                if (!category || !serviceName) return;
+                
+                if (!categories[category]) {
+                    categories[category] = [];
+                }
+                
+                categories[category].push({
+                    name: serviceName,
+                    description: description || '',
+                    price: price || 'По запросу',
+                    unit: unit || '',
+                    features: features ? features.split('\n') : []
+                });
+            });
+
+            // Генерация HTML
+            let html = '';
+            for (const [category, services] of Object.entries(categories)) {
+                html += `
+                    <div class="service-category">
+                        <h2 class="category-title">${category}</h2>
+                        <div class="services-grid">
+                `;
+                
+                services.forEach(service => {
+                    html += `
+                        <div class="service-card">
+                            <h3>${service.name}</h3>
+                            <p class="description">${service.description}</p>
+                            
+                            ${service.features.length > 0 ? `
+                                <ul class="service-features">
+                                    ${service.features.map(f => `<li>${f}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                            
+                            <div class="price-info">
+                                <span class="price-label">Стоимость:</span>
+                                <span class="price-value">${service.price}${service.unit ? ' ' + service.unit : ''}</span>
+                            </div>
+                            
+                            <a href="index.html#contact" class="btn-order">Заказать услугу</a>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Показ ошибки
+        function showError(message) {
+            const container = document.getElementById('services-container');
+            container.innerHTML = `
+                <div class="error-message">
+                    <h3>⚠️ ${message}</h3>
+                    <p>Пожалуйста, проверьте настройки Google Sheets API или используйте альтернативный метод загрузки данных.</p>
+                </div>
+            `;
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            loadServicesFromGoogleSheets();
+        });
+    </script>
+</body>
+</html>

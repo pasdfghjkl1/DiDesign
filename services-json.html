@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DI Studio - Услуги и цены</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c5530;
+            --primary-light: #6c9c84;
+            --secondary-color: #d4a574;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+            --bg-light: #fafafa;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Навигация */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-left: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        /* Заголовок */
+        .hero {
+            padding: 150px 0 80px;
+            text-align: center;
+            background: var(--bg-light);
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        /* Услуги */
+        .services {
+            padding: 80px 0;
+        }
+
+        .category {
+            margin-bottom: 60px;
+        }
+
+        .category-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            border-left: 5px solid var(--primary-light);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .service-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .description {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .features {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .features li {
+            padding: 8px 0 8px 25px;
+            position: relative;
+            color: var(--text-light);
+        }
+
+        .features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary-light);
+            font-weight: bold;
+        }
+
+        .price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .price-label {
+            font-weight: 600;
+        }
+
+        .price-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .btn-order {
+            display: inline-block;
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn-order:hover {
+            background: #b8956b;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        /* Футер */
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 50px 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .price {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">DI</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="portfolio.html" class="nav-link">Портфолио</a></li>
+                <li class="nav-item"><a href="services-json.html" class="nav-link">Услуги</a></li>
+                <li class="nav-item"><a href="drawings-page.html" class="nav-link">Чертежи</a></li>
+                <li class="nav-item"><a href="about-page.html" class="nav-link">О нас</a></li>
+                <li class="nav-item"><a href="index.html#contact" class="nav-link">Контакты</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Наши услуги и цены</h1>
+            <p>Прозрачные цены на все виды услуг. Данные обновляются из файла services.json</p>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="container" id="services-container">
+            <div class="loading">Загружаем услуги...</div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="index.html" class="footer-logo">DI</a>
+                    <p>Профессиональный дизайн интерьера и проектирование.</p>
+                </div>
+                <div>
+                    <h3>Услуги</h3>
+                    <ul class="footer-links">
+                        <li><a href="services-json.html">Дизайн интерьера</a></li>
+                        <li><a href="services-json.html">3D-визуализация</a></li>
+                        <li><a href="drawings-page.html">Проектирование</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Компания</h3>
+                    <ul class="footer-links">
+                        <li><a href="about-page.html">О нас</a></li>
+                        <li><a href="portfolio.html">Портфолио</a></li>
+                        <li><a href="index.html#contact">Контакты</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 DI Studio. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        async function loadServices() {
+            try {
+                const response = await fetch('data/services.json');
+                const categories = await response.json();
+                renderServices(categories);
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                document.getElementById('services-container').innerHTML = 
+                    '<div class="loading">Ошибка загрузки услуг. Проверьте файл data/services.json</div>';
+            }
+        }
+
+        function renderServices(categories) {
+            const container = document.getElementById('services-container');
+            let html = '';
+
+            categories.forEach(cat => {
+                html += `
+                    <div class="category">
+                        <h2 class="category-title">${cat.category}</h2>
+                        <div class="services-grid">
+                `;
+
+                cat.services.forEach(service => {
+                    html += `
+                        <div class="service-card">
+                            <h3>${service.name}</h3>
+                            <p class="description">${service.description}</p>
+                            ${service.features.length > 0 ? `
+                                <ul class="features">
+                                    ${service.features.map(f => `<li>${f}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                            <div class="price">
+                                <span class="price-label">Стоимость:</span>
+                                <span class="price-value">${service.price}${service.unit ? ' ' + service.unit : ''}</span>
+                            </div>
+                            <a href="index.html#contact" class="btn-order">Заказать</a>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadServices);
+    </script>
+</body>
+</html>
