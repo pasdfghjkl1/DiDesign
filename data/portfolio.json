@@ -416,8 +416,14 @@
         {"url": "images/portfolio/beauty-salon/1313-topaz-upscale-4x.jpg", "alt": "Зона релаксации"},
         {"url": "images/portfolio/beauty-salon/444444-topaz-upscale-4x.jpg", "alt": "Детали"}
       ]
-    }
-year": "2024",
+    },
+    {
+      "id": "gym",
+      "title": "Спортивный зал",
+      "category": "other",
+      "categoryName": "Коммерческие помещения",
+      "area": "250 м²",
+      "year": "2024",
       "style": "Современный индустриальный",
       "services": "Дизайн-проект, зонирование, подбор оборудования",
       "description": "Современный фитнес-центр, где энергичная атмосфера и функциональный дизайн мотивируют на достижение спортивных целей.",
