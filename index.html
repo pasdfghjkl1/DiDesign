@@ -530,8 +530,22 @@
                 margin: 1rem 0;
             }
 
+            .hero {
+                min-height: auto;
+                padding: 140px 0 80px;
+            }
+
+            .hero-content {
+                padding-top: 20px;
+            }
+
             .hero-title {
                 font-size: 2.5rem;
+                margin-top: 10px;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
             }
 
             .section-title h2 {
@@ -551,6 +565,31 @@
             .timeline-number {
                 margin-bottom: 1rem;
                 margin-right: 0;
+            }
+        }
+
+        /* Адаптивность для очень маленьких экранов (iPhone SE) */
+        @media (max-width: 375px) {
+            .hero {
+                padding: 150px 0 60px;
+            }
+
+            .hero-content {
+                padding-top: 30px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+                margin-top: 20px;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -586,7 +625,7 @@
                         <i class="fas fa-rocket"></i>
                         Начать проект
                     </a>
-                    <a href="portfolio-demo-complete.html" class="btn btn-outline">
+                    <a href="portfolio.html" class="btn btn-outline">
                         <i class="fas fa-eye"></i>
                         Смотреть работы
                     </a>
@@ -662,7 +701,7 @@
                 </div>
             </div>
             <div style="text-align: center; margin-top: 3rem;">
-                <a href="portfolio-demo-complete.html" class="btn btn-primary">
+                <a href="portfolio.html" class="btn btn-primary">
                     <i class="fas fa-images"></i>
                     Смотреть все проекты
                 </a>
@@ -780,25 +819,25 @@
         <div class="container">
             <div class="footer-grid">
                 <div>
-                    <a href="#" class="footer-logo">DI</a>
+                    <a href="index.html" class="footer-logo">DI</a>
                     <p>Профессиональный дизайн интерьера и проектирование для жилых и коммерческих помещений.</p>
                 </div>
                 <div>
                     <h3>Услуги</h3>
                     <ul class="footer-links">
-                        <li><a href="#">Дизайн интерьера</a></li>
-                        <li><a href="#">3D-визуализация</a></li>
-                        <li><a href="#">Проектирование</a></li>
-                        <li><a href="#">Чертежи</a></li>
+                        <li><a href="services-page.html">Дизайн интерьера</a></li>
+                        <li><a href="services-page.html">3D-визуализация</a></li>
+                        <li><a href="services-page.html">Проектирование</a></li>
+                        <li><a href="drawings-page.html">Чертежи</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3>Компания</h3>
                     <ul class="footer-links">
-                        <li><a href="#">О нас</a></li>
-                        <li><a href="#">Портфолио</a></li>
-                        <li><a href="#">Команда</a></li>
-                        <li><a href="#">Контакты</a></li>
+                        <li><a href="about-page.html">О нас</a></li>
+                        <li><a href="portfolio.html">Портфолио</a></li>
+                        <li><a href="about-page.html">Команда</a></li>
+                        <li><a href="index.html#contact">Контакты</a></li>
                     </ul>
                 </div>
             </div>
