@@ -109,24 +109,42 @@
             transition: 0.3s;
         }
 
-        /* Заголовок страницы */
-        .page-header {
+                /* Hero-баннер */
+        .page-hero {
             padding-top: 150px;
             padding-bottom: 100px;
-            background: var(--bg-light);
+            background: var(--gradient);
+            color: white;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .page-title {
-            font-size: 3rem;
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".1" fill="%23ffffff"/></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.1;
+        }
+        
+        .page-hero h1 {
+            font-size: 3.5rem;
             margin-bottom: 20px;
+            font-weight: 700;
+            position: relative;
         }
-
-        .page-description {
+        
+        .page-hero p {
             max-width: 800px;
             margin: 0 auto;
             font-size: 1.2rem;
-            color: var(--text-light);
+            opacity: 0.95;
+            position: relative;
         }
 
         /* Секции */
@@ -325,6 +343,9 @@
             }
         }
     </style>
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
     <!-- Навигация -->
@@ -347,12 +368,12 @@
     </nav>
 
     <!-- Заголовок страницы -->
-    <header class="page-header">
-        <div class="container">
-            <h1 class="page-title">Чертежи и документация</h1>
-            <p class="page-description">Профессиональная разработка технической документации для точной реализации вашего дизайн-проекта</p>
+    <section class="page-hero">
+        <div class="container" data-aos="fade-up">
+            <h1>Чертежи и проектирование</h1>
+            <p>Профессиональные чертежи и техническая документация для реализации вашего дизайн-проекта</p>
         </div>
-    </header>
+    </section>
 
     <!-- Чертежи -->
     <section class="section">
@@ -507,6 +528,18 @@
             link.addEventListener('click', () => {
                 navMenu.classList.remove('active');
             });
+        });
+    </script>
+    
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            offset: 100
         });
     </script>
 </body>

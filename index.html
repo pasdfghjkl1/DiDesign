@@ -593,6 +593,9 @@
             }
         }
     </style>
+    
+    <!-- Стили для уведомлений -->
+    <link rel="stylesheet" href="notification.css">
 </head>
 <body>
     <!-- Навигация -->
@@ -897,12 +900,9 @@
                 }
             });
         });
-
-        // Форма контактов
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Спасибо за ваше сообщение! Мы свяжемся с вами в ближайшее время.');
-        });
     </script>
+    
+    <!-- Обработчик формы -->
+    <script src="form-handler.js"></script>
 </body>
 </html>

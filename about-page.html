@@ -740,6 +740,9 @@
             }
         }
     </style>
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
     <!-- Навигация -->
@@ -762,12 +765,12 @@
     </nav>
 
     <!-- Заголовок страницы -->
-    <header class="page-header">
-        <div class="container">
-            <h1 class="page-title">О нас</h1>
-            <p class="page-description">DI Studio — это команда профессионалов, объединенных страстью к созданию уникальных и функциональных интерьеров. Мы верим, что продуманный дизайн может изменить качество жизни и работы людей.</p>
+    <section class="page-hero">
+        <div class="container" data-aos="fade-up">
+            <h1>О нас</h1>
+            <p>Студия дизайна интерьера с многолетним опытом создания уникальных пространств</p>
         </div>
-    </header>
+    </section>
 
     <!-- О студии -->
     <section class="about-studio">
@@ -1177,6 +1180,18 @@
         
         window.addEventListener('scroll', handleNumberAnimation);
         window.addEventListener('load', handleNumberAnimation);
+    </script>
+    
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            offset: 100
+        });
     </script>
 </body>
 </html>

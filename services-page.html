@@ -813,7 +813,7 @@
             <div class="services-container">
                 
                 <!-- Service Card 1: Дизайн-проект -->
-                <div class="service-card" data-aos="fade-up" data-aos-delay="100" onclick="openModal('design-project')">
+                <div class="service-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="service-card-image">
                         <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80" alt="Дизайн-проект интерьера">
                     </div>
@@ -827,15 +827,15 @@
                             <span class="price-from">от</span>
                             <span class="price-amount">3 000 ₽/м²</span>
                         </div>
-                        <a href="index.html#contact" class="btn-learn-more">
-                            Заказать услугу
+                        <button onclick="openModal('design-project')" class="btn-learn-more">
+                            Подробнее об услуге
                             <i class="fas fa-arrow-right"></i>
-                        </a>
+                        </button>
                     </div>
                 </div>
 
                 <!-- Service Card 2: 3D-визуализация -->
-                <div class="service-card" data-aos="fade-up" data-aos-delay="200" onclick="openModal('visualization')">
+                <div class="service-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="service-card-image">
                         <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80" alt="3D-визуализация интерьера">
                     </div>
@@ -849,15 +849,15 @@
                             <span class="price-from">от</span>
                             <span class="price-amount">5 000 ₽</span>
                         </div>
-                        <a href="index.html#contact" class="btn-learn-more">
-                            Заказать услугу
+                        <button onclick="openModal('visualization')" class="btn-learn-more">
+                            Подробнее об услуге
                             <i class="fas fa-arrow-right"></i>
-                        </a>
+                        </button>
                     </div>
                 </div>
 
                 <!-- Service Card 3: Проектирование -->
-                <div class="service-card" data-aos="fade-up" data-aos-delay="300" onclick="openModal('planning')">
+                <div class="service-card" data-aos="fade-up" data-aos-delay="300">
                     <div class="service-card-image">
                         <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80" alt="Проектирование интерьера">
                     </div>
@@ -871,7 +871,12 @@
                             <span class="price-from">от</span>
                             <span class="price-amount">1 500 ₽/м²</span>
                         </div>
-                        <a href="drawings-page.html" class="btn-learn-more">
+                        <button onclick="openModal('planning')" class="btn-learn-more">
+                            Подробнее об услуге
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
                             Заказать услугу
                             <i class="fas fa-arrow-right"></i>
                         </a>
@@ -1040,6 +1045,10 @@
                 <div class="modal-section calculator">
                     <h3>Рассчитать стоимость</h3>
                     <form class="calc-form" id="calc-viz" onsubmit="calculate(event, 'viz')">
+                        <div class="calc-group">
+                            <label>Площадь (м²)</label>
+                            <input type="number" class="calc-input" name="area" placeholder="Например, 50" required>
+                        </div>
                         <div class="calc-group">
                             <label>Количество помещений</label>
                             <input type="number" class="calc-input" name="rooms" placeholder="Введите кол-во" required>
@@ -1324,11 +1333,17 @@
 
                 total = area * pricePerSqm * (coefficients[roomType] || 1) * rooms * style * replan;
             } else if (type === 'viz') {
+                const area = parseFloat(form.area.value);
                 const rooms = parseFloat(form.rooms.value);
                 const angles = parseFloat(form.angles.value);
-                const pricePerAngle = 2500;
+                const pricePerSqm = 100; // Базовая цена за м²
+                const pricePerAngle = 2500; // Базовая цена за ракурс
 
-                total = rooms * angles * pricePerAngle;
+                // Рассчитываем базовую стоимость по площади + стоимость ракурсов
+                const baseCost = area * pricePerSqm;
+                const anglesCost = rooms * angles * pricePerAngle;
+                
+                total = baseCost + anglesCost;
             } else if (type === 'plan') {
                 const area = parseFloat(form.area.value);
                 const docType = form.docType.value;
