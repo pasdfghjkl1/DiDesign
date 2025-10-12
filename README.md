@@ -1,18 +1,20 @@
 # 🏠 DI Design Studio - Профессиональный дизайн интерьера
 
-Профессиональный сайт для студии дизайна интерьера с динамическим портфолио из 21 проекта.
+Профессиональный сайт для студии дизайна интерьера с динамическим портфолио из 18 проектов.
 
-![Portfolio Preview](https://img.shields.io/badge/Projects-21-blue) ![Images](https://img.shields.io/badge/Images-226-green) ![Status](https://img.shields.io/badge/Status-Ready-success)
+![Portfolio Preview](https://img.shields.io/badge/Projects-18-blue) ![Images](https://img.shields.io/badge/Images-200+-green) ![Status](https://img.shields.io/badge/Status-Ready-success)
 
 ---
 
 ## ✨ О проекте
 
 Современный, адаптивный сайт с полным портфолио реализованных проектов:
-- 15 жилых проектов
-- 6 коммерческих проектов  
-- 226 профессиональных фотографий
+- 14 жилых проектов
+- 4 коммерческих проекта  
+- 200+ профессиональных фотографий
 - Красивые описания для каждого проекта
+- Интерактивные калькуляторы стоимости
+- Система отправки заявок
 
 ---
 
