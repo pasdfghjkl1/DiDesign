@@ -116,7 +116,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Проверяем, является ли пользователь администратором
             const clientDoc = await window.firebaseDb.collection('clients').doc(currentPhone).get();
-            const isAdmin = clientDoc.data()?.isAdmin || false;
+            const clientData = clientDoc.data();
+            const isAdmin = clientData?.isAdmin || false;
+            
+            // Отладка
+            console.log('📋 Данные клиента:', clientData);
+            console.log('🔑 isAdmin:', isAdmin);
+            console.log('📞 Телефон:', currentPhone);
             
             // Обновляем данные в Firestore
             await window.firebaseDb.collection('clients').doc(currentPhone).update({
@@ -129,9 +135,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Перенаправляем в соответствующую панель через 2 секунды
             setTimeout(() => {
-                if (isAdmin) {
+                console.log('🚀 Перенаправление... isAdmin =', isAdmin);
+                if (isAdmin === true) {
+                    console.log('➡️ Переход в админ-панель');
                     window.location.href = 'admin-dashboard.html';
                 } else {
+                    console.log('➡️ Переход в личный кабинет');
                     window.location.href = 'client-dashboard.html';
                 }
             }, 2000);
@@ -173,7 +182,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Проверяем, является ли пользователь администратором
             const clientDoc = await window.firebaseDb.collection('clients').doc(currentPhone).get();
-            const isAdmin = clientDoc.data()?.isAdmin || false;
+            const clientData = clientDoc.data();
+            const isAdmin = clientData?.isAdmin || false;
+            
+            // Отладка
+            console.log('📋 Данные клиента при входе:', clientData);
+            console.log('🔑 isAdmin при входе:', isAdmin);
+            console.log('📞 Телефон при входе:', currentPhone);
             
             // Обновляем время последнего входа
             await window.firebaseDb.collection('clients').doc(currentPhone).update({
@@ -184,9 +199,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Перенаправляем в соответствующую панель
             setTimeout(() => {
-                if (isAdmin) {
+                console.log('🚀 Перенаправление при входе... isAdmin =', isAdmin);
+                if (isAdmin === true) {
+                    console.log('➡️ Переход в админ-панель (вход)');
                     window.location.href = 'admin-dashboard.html';
                 } else {
+                    console.log('➡️ Переход в личный кабинет (вход)');
                     window.location.href = 'client-dashboard.html';
                 }
             }, 1500);
