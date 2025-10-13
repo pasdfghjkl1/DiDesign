@@ -114,6 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Создаем пользователя в Firebase Auth
             const userCredential = await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
             
+            // Проверяем, является ли пользователь администратором
+            const clientDoc = await window.firebaseDb.collection('clients').doc(currentPhone).get();
+            const isAdmin = clientDoc.data()?.isAdmin || false;
+            
             // Обновляем данные в Firestore
             await window.firebaseDb.collection('clients').doc(currentPhone).update({
                 hasPassword: true,
@@ -123,9 +127,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             showAlert('success', 'Пароль успешно создан! Перенаправление...');
             
-            // Перенаправляем в личный кабинет через 2 секунды
+            // Перенаправляем в соответствующую панель через 2 секунды
             setTimeout(() => {
-                window.location.href = 'client-dashboard.html';
+                if (isAdmin) {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'client-dashboard.html';
+                }
             }, 2000);
 
         } catch (error) {
@@ -163,6 +171,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Вход через Firebase Auth
             const userCredential = await window.firebaseAuth.signInWithEmailAndPassword(email, password);
             
+            // Проверяем, является ли пользователь администратором
+            const clientDoc = await window.firebaseDb.collection('clients').doc(currentPhone).get();
+            const isAdmin = clientDoc.data()?.isAdmin || false;
+            
             // Обновляем время последнего входа
             await window.firebaseDb.collection('clients').doc(currentPhone).update({
                 lastLogin: firebase.firestore.FieldValue.serverTimestamp()
@@ -170,9 +182,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             showAlert('success', 'Вход выполнен успешно! Перенаправление...');
             
-            // Перенаправляем в личный кабинет
+            // Перенаправляем в соответствующую панель
             setTimeout(() => {
-                window.location.href = 'client-dashboard.html';
+                if (isAdmin) {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'client-dashboard.html';
+                }
             }, 1500);
 
         } catch (error) {
