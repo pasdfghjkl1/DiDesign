@@ -18,6 +18,26 @@ firebaseAuth.onAuthStateChanged(async (user) => {
     // Извлекаем номер телефона из email
     currentUserPhone = user.email.replace('@di-studio.local', '');
 
+    // ВАЖНО: Проверяем, не является ли пользователь администратором
+    try {
+        const clientDoc = await db.collection('clients').doc(currentUserPhone).get();
+        if (clientDoc.exists) {
+            const isAdmin = clientDoc.data()?.isAdmin || false;
+            
+            console.log('🔍 Проверка в dashboard.js:');
+            console.log('📞 Телефон:', currentUserPhone);
+            console.log('🔑 isAdmin:', isAdmin);
+            
+            if (isAdmin === true) {
+                console.log('⚠️ Администратор пытается зайти в личный кабинет! Перенаправление...');
+                window.location.href = 'admin-dashboard.html';
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка проверки прав:', error);
+    }
+
     // Загружаем данные клиента
     await loadClientData();
 });
