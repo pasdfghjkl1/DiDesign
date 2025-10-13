@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - DI Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <!-- Хедер -->
+    <header class="header">
+        <div class="header-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="logo">DI</a>
+            <div class="project-title" id="projectTitle">Загрузка...</div>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <span id="userName">Загрузка...</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Выход
+            </button>
+        </div>
+    </header>
+
+    <!-- Боковая панель -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="#" class="menu-link active" onclick="showSection('overview')">
+                    <i class="fas fa-home menu-icon"></i>
+                    <span>Обзор</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('files')">
+                    <i class="fas fa-folder menu-icon"></i>
+                    <span>Файлы</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('versions')">
+                    <i class="fas fa-history menu-icon"></i>
+                    <span>Версии и история</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('timeline')">
+                    <i class="fas fa-calendar-alt menu-icon"></i>
+                    <span>Календарь и этапы</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('documents')">
+                    <i class="fas fa-file-invoice menu-icon"></i>
+                    <span>Счета и документы</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('specifications')">
+                    <i class="fas fa-list-alt menu-icon"></i>
+                    <span>ТЗ / Спецификации</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+        <!-- Секция: Обзор -->
+        <section class="content-section active" id="overview-section">
+            <div class="page-header">
+                <h1 class="page-title">Обзор проекта</h1>
+                <p class="page-subtitle">Сводная информация о ходе работ</p>
+            </div>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Прогресс</div>
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="progressValue">0%</div>
+                    <div class="card-label">Завершено</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Ближайший дедлайн</div>
+                        <div class="card-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="deadlineValue" style="font-size: 1.5rem;">-</div>
+                    <div class="card-label" id="deadlineLabel">Загрузка...</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Всего файлов</div>
+                        <div class="card-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="filesCount">0</div>
+                    <div class="card-label">Рендеры, чертежи, документы</div>
+                </div>
+            </div>
+
+            <div class="files-list">
+                <h3 style="margin-bottom: 1rem;">Последние файлы</h3>
+                <div id="recentFiles">
+                    <div class="loader">
+                        <div class="spinner-large"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция: Файлы -->
+        <section class="content-section" id="files-section">
+            <div class="page-header">
+                <h1 class="page-title">Файлы проекта</h1>
+                <p class="page-subtitle">Все рендеры, чертежи и документы</p>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterFiles('all')">Все файлы</button>
+                <button class="filter-btn" onclick="filterFiles('render')">Рендеры</button>
+                <button class="filter-btn" onclick="filterFiles('drawing')">Чертежи</button>
+                <button class="filter-btn" onclick="filterFiles('document')">Документы</button>
+            </div>
+
+            <div class="files-list" id="allFiles">
+                <div class="loader">
+                    <div class="spinner-large"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция: Версии -->
+        <section class="content-section" id="versions-section">
+            <div class="page-header">
+                <h1 class="page-title">Версии и история</h1>
+                <p class="page-subtitle">История изменений файлов проекта</p>
+            </div>
+            <div id="versionsContent">
+                <div class="loader"><div class="spinner-large"></div></div>
+            </div>
+        </section>
+
+        <!-- Секция: Календарь -->
+        <section class="content-section" id="timeline-section">
+            <div class="page-header">
+                <h1 class="page-title">Календарь и этапы</h1>
+                <p class="page-subtitle">График выполнения работ</p>
+            </div>
+            <div class="timeline" id="projectTimeline">
+                <div class="loader"><div class="spinner-large"></div></div>
+            </div>
+        </section>
+
+        <!-- Секция: Документы -->
+        <section class="content-section" id="documents-section">
+            <div class="page-header">
+                <h1 class="page-title">Счета и документы</h1>
+                <p class="page-subtitle">Финансовые документы и договоры</p>
+            </div>
+            <div class="files-list" id="documentsContent">
+                <div class="loader"><div class="spinner-large"></div></div>
+            </div>
+        </section>
+
+        <!-- Секция: Спецификации -->
+        <section class="content-section" id="specifications-section">
+            <div class="page-header">
+                <h1 class="page-title">ТЗ и Спецификации</h1>
+                <p class="page-subtitle">Техническое задание и материалы</p>
+            </div>
+            <div id="specificationsContent">
+                <div class="loader"><div class="spinner-large"></div></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/dashboard.js"></script>
+
+    <script>
+        function showSection(sectionName) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(sectionName + '-section').classList.add('active');
+            event.currentTarget.classList.add('active');
+            if (window.innerWidth <= 968) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                firebaseAuth.signOut().then(() => {
+                    window.location.href = 'client-login.html';
+                });
+            }
+        }
+
+        let currentFilter = 'all';
+        function filterFiles(type) {
+            currentFilter = type;
+            document.querySelectorAll('.filters .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            loadAllFiles();
+        }
+    </script>
+</body>
+</html>
