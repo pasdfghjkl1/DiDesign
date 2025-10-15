@@ -29,13 +29,19 @@ firebaseAuth.onAuthStateChanged(async (user) => {
             console.log('🔑 isAdmin:', isAdmin);
             
             if (isAdmin === true) {
-                console.log('⚠️ Администратор пытается зайти в личный кабинет! Перенаправление...');
+                console.log('⚠️ Администратор! Перенаправление в админ-панель...');
                 window.location.href = 'admin-dashboard.html';
-                return;
+                return; // Важно: не продолжаем загрузку
             }
         }
     } catch (error) {
         console.error('Ошибка проверки прав:', error);
+    }
+
+    // Скрываем загрузочный экран (если это обычный клиент)
+    const loader = document.getElementById('authCheckLoader');
+    if (loader) {
+        loader.style.display = 'none';
     }
 
     // Загружаем данные клиента
