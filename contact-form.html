@@ -1,0 +1,89 @@
+<!-- ============================================ -->
+<!-- ФОРМА ОБРАТНОЙ СВЯЗИ ДЛЯ САЙТА DI STUDIO -->
+<!-- ============================================ -->
+
+<div class="contact-form-wrapper" id="contactFormWrapper">
+    <div class="contact-form-container">
+        <button class="close-form-btn" onclick="closeContactForm()">&times;</button>
+        
+        <h2 class="form-title">Свяжитесь с нами</h2>
+        <p class="form-subtitle">Оставьте заявку, и мы свяжемся с вами в ближайшее время</p>
+        
+        <form id="contactForm" class="contact-form" onsubmit="handleFormSubmit(event)">
+            <div class="form-group">
+                <label for="clientName">Ваше имя <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="clientName" 
+                    name="name" 
+                    required 
+                    placeholder="Иван Иванов"
+                    minlength="2"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="clientPhone">Телефон <span class="required">*</span></label>
+                <input 
+                    type="tel" 
+                    id="clientPhone" 
+                    name="phone" 
+                    required 
+                    placeholder="+7 (999) 123-45-67"
+                    pattern="[\+]?[0-9\s\-\(\)]+"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="clientEmail">Email</label>
+                <input 
+                    type="email" 
+                    id="clientEmail" 
+                    name="email" 
+                    placeholder="example@mail.com"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="leadType">Тип заявки</label>
+                <select id="leadType" name="leadType">
+                    <option value="Консультация">Консультация</option>
+                    <option value="Дизайн квартиры">Дизайн квартиры</option>
+                    <option value="Дизайн дома">Дизайн дома</option>
+                    <option value="Дизайн офиса">Дизайн офиса</option>
+                    <option value="Чертежи">Чертежи</option>
+                    <option value="Другое">Другое</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="clientMessage">Сообщение</label>
+                <textarea 
+                    id="clientMessage" 
+                    name="message" 
+                    rows="4" 
+                    placeholder="Расскажите о вашем проекте..."
+                ></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                <span class="btn-text">Отправить заявку</span>
+                <span class="btn-loading" style="display: none;">Отправка...</span>
+            </button>
+            
+            <p class="form-notice">
+                Нажимая кнопку, вы соглашаетесь с обработкой персональных данных
+            </p>
+        </form>
+        
+        <div id="formSuccess" class="form-message success" style="display: none;">
+            <h3>✓ Спасибо за обращение!</h3>
+            <p>Мы получили вашу заявку и свяжемся с вами в ближайшее время.</p>
+        </div>
+        
+        <div id="formError" class="form-message error" style="display: none;">
+            <h3>✗ Ошибка отправки</h3>
+            <p>Попробуйте позже или свяжитесь с нами по телефону.</p>
+        </div>
+    </div>
+</div>
