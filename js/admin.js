@@ -1,4 +1,242 @@
- data.project?.startDate || '';
+// ============================================
+// Логика админ-панели
+// ============================================
+
+// Проверка авторизации администратора
+document.addEventListener('DOMContentLoaded', async function() {
+    // Проверяем, авторизован ли пользователь
+    window.firebaseAuth.onAuthStateChanged(async (user) => {
+        if (!user) {
+            // Пользователь не авторизован - перенаправляем на страницу входа
+            window.location.href = 'client-login.html';
+            return;
+        }
+
+        // Получаем номер телефона из email
+        const phone = user.email.split('@')[0];
+        
+        // Проверяем, является ли пользователь администратором
+        try {
+            const clientDoc = await window.firebaseDb.collection('clients').doc(phone).get();
+            
+            if (!clientDoc.exists || !clientDoc.data().isAdmin) {
+                // Это не администратор - перенаправляем в обычный кабинет
+                alert('У вас нет прав администратора');
+                window.location.href = 'client-dashboard.html';
+                return;
+            }
+
+            // Загружаем данные
+            loadClients();
+        } catch (error) {
+            console.error('Ошибка проверки прав:', error);
+            alert('Ошибка проверки прав доступа');
+            window.location.href = 'client-login.html';
+        }
+    });
+});
+
+// Глобальная переменная для хранения всех клиентов
+let allClients = [];
+
+// ============================================
+// Загрузка списка клиентов
+// ============================================
+async function loadClients() {
+    try {
+        const clientsSnapshot = await window.firebaseDb.collection('clients')
+            .where('isAdmin', '==', false)  // Не показываем администраторов
+            .get();
+        
+        allClients = [];
+        clientsSnapshot.forEach(doc => {
+            allClients.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        // Обновляем статистику
+        updateStatistics();
+
+        // Отображаем таблицу
+        renderClientsTable(allClients);
+    } catch (error) {
+        console.error('Ошибка загрузки клиентов:', error);
+        document.getElementById('tableContent').innerHTML = `
+            <div class="loading">
+                <p style="color: var(--danger);">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Ошибка загрузки данных
+                </p>
+            </div>
+        `;
+    }
+}
+
+// ============================================
+// Обновление статистики
+// ============================================
+function updateStatistics() {
+    const totalClients = allClients.length;
+    const activeProjects = allClients.filter(c => c.project?.status === 'В работе').length;
+    const completedProjects = allClients.filter(c => c.project?.status === 'Завершён').length;
+
+    document.getElementById('totalClients').textContent = totalClients;
+    document.getElementById('activeProjects').textContent = activeProjects;
+    document.getElementById('completedProjects').textContent = completedProjects;
+}
+
+// ============================================
+// Отображение таблицы клиентов
+// ============================================
+function renderClientsTable(clients) {
+    const tableContent = document.getElementById('tableContent');
+    
+    if (clients.length === 0) {
+        tableContent.innerHTML = `
+            <div class="loading">
+                <p><i class="fas fa-inbox"></i> Клиенты не найдены</p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = `
+        <table class="clients-table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Телефон</th>
+                    <th>Проект</th>
+                    <th>Статус</th>
+                    <th>Прогресс</th>
+                    <th>Дедлайн</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    clients.forEach(client => {
+        const name = client.personalInfo?.name || 'Не указано';
+        const phone = client.personalInfo?.phone || 'Не указано';
+        const projectTitle = client.project?.title || 'Нет проекта';
+        const status = client.project?.status || 'Неизвестно';
+        const progress = client.project?.progress || 0;
+        const deadline = client.project?.deadline || '-';
+
+        // Определяем класс статуса
+        let statusClass = 'pending';
+        if (status === 'В работе') statusClass = 'active';
+        if (status === 'Завершён') statusClass = 'completed';
+
+        html += `
+            <tr>
+                <td><strong>${name}</strong></td>
+                <td>${phone}</td>
+                <td>${projectTitle}</td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <small>${progress}%</small>
+                </td>
+                <td>${deadline}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon btn-view" onclick="viewClient('${client.id}')" title="Просмотр">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon btn-edit" onclick="editClient('${client.id}')" title="Редактировать">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-delete" onclick="deleteClient('${client.id}', '${name}')" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    tableContent.innerHTML = html;
+}
+
+// ============================================
+// Поиск клиентов
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (!searchTerm) {
+                renderClientsTable(allClients);
+                return;
+            }
+
+            const filtered = allClients.filter(client => {
+                const name = (client.personalInfo?.name || '').toLowerCase();
+                const phone = (client.personalInfo?.phone || '').toLowerCase();
+                const project = (client.project?.title || '').toLowerCase();
+                
+                return name.includes(searchTerm) || 
+                       phone.includes(searchTerm) || 
+                       project.includes(searchTerm);
+            });
+
+            renderClientsTable(filtered);
+        });
+    }
+});
+
+// ============================================
+// Открыть модальное окно добавления клиента
+// ============================================
+function openAddClientModal() {
+    document.getElementById('modalTitle').textContent = 'Добавить клиента';
+    document.getElementById('clientForm').reset();
+    document.getElementById('clientId').value = '';
+    
+    // Установить текущую дату по умолчанию
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('projectStartDate').value = today;
+    
+    document.getElementById('clientModal').classList.add('active');
+}
+
+// ============================================
+// Редактировать клиента
+// ============================================
+async function editClient(clientId) {
+    try {
+        const clientDoc = await window.firebaseDb.collection('clients').doc(clientId).get();
+        
+        if (!clientDoc.exists) {
+            alert('Клиент не найден');
+            return;
+        }
+
+        const data = clientDoc.data();
+        
+        document.getElementById('modalTitle').textContent = 'Редактировать клиента';
+        document.getElementById('clientId').value = clientId;
+        document.getElementById('clientName').value = data.personalInfo?.name || '';
+        document.getElementById('clientPhone').value = data.personalInfo?.phone || '';
+        document.getElementById('clientEmail').value = data.personalInfo?.email || '';
+        document.getElementById('projectTitle').value = data.project?.title || '';
+        document.getElementById('projectArea').value = data.project?.area || '';
+        document.getElementById('projectStatus').value = data.project?.status || 'В работе';
+        document.getElementById('projectProgress').value = data.project?.progress || 0;
+        document.getElementById('projectStartDate').value = data.project?.startDate || '';
         document.getElementById('projectDeadline').value = data.project?.deadline || '';
         
         document.getElementById('clientModal').classList.add('active');
@@ -53,9 +291,6 @@ async function deleteClient(clientId, clientName) {
     try {
         // Удаляем клиента из Firestore
         await window.firebaseDb.collection('clients').doc(clientId).delete();
-        
-        // Если у клиента есть аккаунт в Authentication, удаляем его
-        // (Это требует серверной функции, пока пропустим)
         
         alert('Клиент успешно удалён');
         
