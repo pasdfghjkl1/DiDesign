@@ -44,17 +44,23 @@ let allClients = [];
 // ============================================
 async function loadClients() {
     try {
-        const clientsSnapshot = await window.firebaseDb.collection('clients')
-            .where('isAdmin', '==', false)  // Не показываем администраторов
-            .get();
+        // Временно загружаем ВСЕХ клиентов для отладки
+        const clientsSnapshot = await window.firebaseDb.collection('clients').get();
         
         allClients = [];
         clientsSnapshot.forEach(doc => {
-            allClients.push({
-                id: doc.id,
-                ...doc.data()
-            });
+            const data = doc.data();
+            // Фильтруем администраторов на клиенте
+            if (!data.isAdmin) {
+                allClients.push({
+                    id: doc.id,
+                    ...data
+                });
+            }
         });
+
+        console.log('✅ Загружено клиентов:', allClients.length);
+        console.log('📋 Клиенты:', allClients);
 
         // Обновляем статистику
         updateStatistics();
@@ -62,12 +68,12 @@ async function loadClients() {
         // Отображаем таблицу
         renderClientsTable(allClients);
     } catch (error) {
-        console.error('Ошибка загрузки клиентов:', error);
+        console.error('❌ Ошибка загрузки клиентов:', error);
         document.getElementById('tableContent').innerHTML = `
             <div class="loading">
                 <p style="color: var(--danger);">
                     <i class="fas fa-exclamation-triangle"></i> 
-                    Ошибка загрузки данных
+                    Ошибка загрузки данных: ${error.message}
                 </p>
             </div>
         `;
