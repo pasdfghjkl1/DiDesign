@@ -1,0 +1,157 @@
+/* ============================================
+   ГЛОБАЛЬНЫЕ ИСПРАВЛЕНИЯ АДАПТИВНОСТИ
+   ============================================ */
+
+/* П2-телефон: Убираем белую полосу при прокрутке */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+}
+
+/* Предотвращаем горизонтальный overflow */
+* {
+    max-width: 100%;
+}
+
+/* Исключения для элементов которым нужна ширина больше 100% */
+.container,
+.nav-container,
+.hero,
+.section {
+    max-width: none;
+}
+
+/* П4: Обыгрываем белые пространства на небольших экранах */
+@media (max-width: 1024px) and (min-width: 769px) {
+    /* Планшеты */
+    .container {
+        max-width: 90%;
+        padding: 0 40px;
+    }
+    
+    .section {
+        padding: 80px 0;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Мобильные устройства */
+    .container {
+        padding: 0 20px;
+    }
+    
+    .section {
+        padding: 60px 0;
+    }
+    
+    /* Уменьшаем отступы у карточек */
+    .services-grid,
+    .portfolio-grid {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 375px) {
+    /* Очень маленькие экраны (iPhone SE) */
+    .container {
+        padding: 0 15px;
+    }
+    
+    .section {
+        padding: 50px 0;
+    }
+    
+    /* Скрин 3: Исправляем подвисание картинок */
+    img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .portfolio-image,
+    .service-card img,
+    .hero::before {
+        width: 100%;
+        object-fit: cover;
+    }
+}
+
+/* Скрин 2: Исправляем портфолио на планшетах */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .portfolio-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .portfolio-item {
+        min-height: 280px;
+    }
+    
+    .portfolio-image {
+        height: 280px;
+        object-fit: cover;
+    }
+}
+
+/* Исправление для grid элементов */
+.portfolio-grid,
+.services-grid,
+.contact-grid {
+    width: 100%;
+}
+
+/* П4-телефон: Сокращение текста в карточках */
+@media (max-width: 768px) {
+    .portfolio-overlay p {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .service-card p {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Дополнительная защита от overflow */
+.hero-content,
+.footer-grid,
+.timeline-item {
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Исправление для floating buttons на маленьких экранах */
+@media (max-width: 375px) {
+    .floating-buttons {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .floating-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
+
+/* Исправление для форм */
+.form-control,
+.form-group {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Smooth transitions для адаптивности */
+@media (prefers-reduced-motion: no-preference) {
+    * {
+        transition: width 0.3s ease, padding 0.3s ease;
+    }
+}
