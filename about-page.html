@@ -3,62 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DI Studio - О нас</title>
+    <title>DI Studio - О создателях</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/responsive-fixes.css">
     <style>
-        /* Базовые стили */
+        :root {
+            --primary-color: #2c5530;
+            --primary-light: #6c9c84;
+            --secondary-color: #d4a574;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+            --bg-light: #fafafa;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+            --gradient: linear-gradient(135deg, #2c5530 0%, #6c9c84 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(-30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .animate-on-scroll {
-            opacity: 0;
-            transition: opacity 0.8s, transform 0.8s;
-        }
-        
-        .animate-on-scroll.animate {
-            opacity: 1;
-            transform: translateY(0);
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            color: #333;
+            font-family: 'Inter', sans-serif;
             line-height: 1.6;
-            background-color: #fff;
+            color: var(--text-dark);
         }
         
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Playfair Display', serif;
             font-weight: 600;
-            margin-bottom: 1rem;
+            line-height: 1.3;
         }
-        
-        p {
-            margin-bottom: 1rem;
-        }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
-        
+
         /* Навигация */
         .navbar {
             position: fixed;
@@ -84,10 +69,10 @@
         }
 
         .logo {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Playfair Display', serif;
             font-size: 2rem;
             font-weight: 700;
-            color: #2c5530;
+            color: var(--primary-color);
             text-decoration: none;
         }
 
@@ -103,13 +88,27 @@
 
         .nav-link {
             text-decoration: none;
-            color: #1a1a1a;
+            color: var(--text-dark);
             font-weight: 500;
             transition: color 0.3s ease;
         }
 
         .nav-link:hover {
-            color: #6c9c84;
+            color: var(--primary-light);
+        }
+
+        .client-login-link {
+            background: var(--gradient);
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .client-login-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            color: white !important;
         }
 
         .hamburger {
@@ -121,23 +120,23 @@
         .hamburger span {
             width: 25px;
             height: 3px;
-            background: #1a1a1a;
+            background: var(--text-dark);
             margin: 3px 0;
             transition: 0.3s;
         }
-        
-        /* Hero-баннер */
-        .page-hero {
+
+        /* Hero секция */
+        .hero {
             padding-top: 150px;
             padding-bottom: 100px;
-            background: linear-gradient(135deg, #2c5530 0%, #6c9c84 100%);
+            background: var(--gradient);
             color: white;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-        .page-hero::before {
+        .hero::before {
             content: '';
             position: absolute;
             top: 0;
@@ -149,437 +148,264 @@
             opacity: 0.1;
         }
         
-        .page-hero h1 {
+        .hero h1 {
             font-size: 3.5rem;
             margin-bottom: 20px;
             font-weight: 700;
             position: relative;
         }
         
-        .page-hero p {
-            max-width: 800px;
+        .hero p {
+            max-width: 700px;
             margin: 0 auto;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             opacity: 0.95;
             position: relative;
         }
-        
-        /* Старый заголовок страницы (оставляем для совместимости) */
-        .page-header {
-            padding-top: 120px;
-            padding-bottom: 80px;
-            text-align: center;
-            background-color: #f9f9f9;
-        }
-        
-        .page-title {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            position: relative;
-            display: inline-block;
-        }
-        
-        .page-title:after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 3px;
-            background: #6c9c84;
-        }
-        
-        .page-description {
-            max-width: 800px;
-            margin: 40px auto 0;
-            font-size: 1.2rem;
-            color: #666;
-        }
-        
-        /* О студии секция */
-        .about-studio {
+
+        /* Секция "О нас" */
+        .about-intro {
             padding: 100px 0;
+            background: white;
         }
-        
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-        }
-        
-        .about-image {
-            width: 100%;
-            height: 100%;
-            max-height: 500px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .about-content h2 {
-            font-size: 2.5rem;
-            margin-bottom: 25px;
-            position: relative;
-        }
-        
-        .about-content h2:after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 50px;
-            height: 3px;
-            background: #6c9c84;
-        }
-        
-        .about-text {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
-        .about-numbers {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-top: 50px;
-        }
-        
-        .number-item {
-            text-align: center;
-        }
-        
-        .number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #6c9c84;
-            display: block;
-            margin-bottom: 10px;
-        }
-        
-        .number-text {
-            font-size: 1rem;
-            color: #666;
-        }
-        
-        /* Наша история */
-        .our-history {
-            padding: 100px 0;
-            background-color: #f9f9f9;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 60px;
-            position: relative;
-        }
-        
-        .section-title:after {
-            content: '';
-            display: block;
-            width: 50px;
-            height: 3px;
-            background: #6c9c84;
-            margin: 20px auto 0;
-        }
-        
-        .timeline {
-            position: relative;
+
+        .intro-content {
             max-width: 900px;
             margin: 0 auto;
-        }
-        
-        .timeline:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            background: #6c9c84;
-            opacity: 0.3;
-        }
-        
-        .timeline-item {
-            position: relative;
-            margin-bottom: 80px;
-            display: flex;
-        }
-        
-        .timeline-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .timeline-content {
-            width: 45%;
-            padding: 30px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            position: relative;
-        }
-        
-        .timeline-date {
-            position: absolute;
-            top: -40px;
-            font-weight: 700;
-            color: #6c9c84;
-            font-size: 1.1rem;
-        }
-        
-        .timeline-item:nth-child(odd) {
-            justify-content: flex-start;
-        }
-        
-        .timeline-item:nth-child(even) {
-            justify-content: flex-end;
-        }
-        
-        .timeline-item:nth-child(odd) .timeline-content:after {
-            content: '';
-            position: absolute;
-            top: 30px;
-            right: -15px;
-            width: 30px;
-            height: 30px;
-            background: white;
-            transform: rotate(45deg);
-            box-shadow: 5px -5px 5px rgba(0, 0, 0, 0.05);
-        }
-        
-        .timeline-item:nth-child(even) .timeline-content:after {
-            content: '';
-            position: absolute;
-            top: 30px;
-            left: -15px;
-            width: 30px;
-            height: 30px;
-            background: white;
-            transform: rotate(45deg);
-            box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.05);
-        }
-        
-        .timeline-dot {
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 20px;
-            background: #6c9c84;
-            border-radius: 50%;
-            z-index: 1;
-        }
-        
-        .timeline-title {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-        
-        .timeline-desc {
-            color: #666;
-        }
-        
-        /* Наша команда */
-        .our-team {
-            padding: 100px 0;
-        }
-        
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-        }
-        
-        .team-member {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-        
-        .team-member:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .member-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-        }
-        
-        .member-info {
-            padding: 25px;
             text-align: center;
         }
-        
-        .member-name {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
+
+        .intro-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--text-dark);
         }
-        
-        .member-position {
-            color: #6c9c84;
-            margin-bottom: 15px;
-            font-weight: 500;
+
+        .intro-content p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 25px;
+            line-height: 1.8;
         }
-        
-        .member-bio {
-            color: #666;
-            margin-bottom: 20px;
+
+        /* Создатели */
+        .founders {
+            padding: 100px 0;
+            background: var(--bg-light);
         }
-        
-        .member-social {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            color: var(--text-dark);
         }
-        
-        .social-link {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #f9f9f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-decoration: none;
-            color: #6c9c84;
+
+        .founders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 50px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .founder-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
             transition: all 0.3s ease;
         }
-        
+
+        .founder-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .founder-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .founder-info {
+            padding: 35px;
+        }
+
+        .founder-name {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .founder-role {
+            color: var(--primary-light);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .founder-bio {
+            color: var(--text-light);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .founder-details {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .founder-details h4 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .founder-details ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .founder-details li {
+            padding: 8px 0;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+        }
+
+        .founder-details li i {
+            color: var(--primary-light);
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .founder-social {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
         .social-link:hover {
-            background: #6c9c84;
+            background: var(--primary-color);
             color: white;
             transform: translateY(-3px);
         }
-        
+
         /* Наши ценности */
-        .our-values {
+        .values {
             padding: 100px 0;
-            background-color: #f9f9f9;
+            background: white;
         }
-        
+
         .values-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-        }
-        
-        .value-card {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: flex-start;
-        }
-        
-        .value-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .value-icon {
-            font-size: 2.5rem;
-            color: #6c9c84;
-            margin-right: 20px;
-            flex-shrink: 0;
-        }
-        
-        .value-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-        
-        .value-content p {
-            color: #666;
-        }
-        
-        /* Партнеры */
-        .our-partners {
-            padding: 100px 0;
-        }
-        
-        .partners-logo-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
             margin-top: 50px;
         }
-        
-        .partner-logo {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            padding: 20px;
-        }
-        
-        .partner-logo:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .partner-logo img {
-            max-width: 80%;
-            max-height: 60px;
-            filter: grayscale(100%);
-            opacity: 0.7;
-            transition: all 0.3s ease;
-        }
-        
-        .partner-logo:hover img {
-            filter: grayscale(0);
-            opacity: 1;
-        }
-        
-        /* CTA секция */
-        .cta-section {
-            padding: 100px 0;
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&h=1080&q=80') no-repeat center center;
-            background-size: cover;
+
+        .value-card {
+            background: var(--bg-light);
+            padding: 40px 30px;
+            border-radius: 15px;
             text-align: center;
-            color: white;
+            transition: all 0.3s ease;
         }
-        
-        .cta-title {
+
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .value-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .value-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .value-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* CTA секция */
+        .cta {
+            padding: 100px 0;
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
             font-size: 2.5rem;
             margin-bottom: 20px;
         }
-        
-        .cta-text {
-            max-width: 800px;
-            margin: 0 auto 30px;
+
+        .cta p {
+            max-width: 700px;
+            margin: 0 auto 35px;
             font-size: 1.2rem;
+            opacity: 0.95;
         }
-        
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #b8956b;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
         /* Футер */
         .footer {
-            background: #1a1a1a;
+            background: var(--text-dark);
             color: white;
             padding: 50px 0 20px;
         }
-        
+
         .footer-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
             margin-bottom: 2rem;
         }
-        
+
         .footer-logo {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Playfair Display', serif;
             font-size: 2rem;
             font-weight: 700;
             color: white;
@@ -587,49 +413,30 @@
             margin-bottom: 1rem;
             display: block;
         }
-        
+
         .footer-links {
             list-style: none;
         }
-        
+
         .footer-links li {
             margin-bottom: 0.5rem;
         }
-        
+
         .footer-links a {
             color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             transition: color 0.3s ease;
         }
-        
+
         .footer-links a:hover {
             color: white;
         }
-        
+
         .copyright {
             text-align: center;
             padding-top: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.7);
-        }
-        
-        .btn {
-            display: inline-block;
-            background: #6c9c84;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover {
-            background: #598b72;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         /* Плавающие кнопки */
@@ -654,7 +461,7 @@
             text-decoration: none;
             font-size: 1.5rem;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
         .floating-btn.whatsapp {
@@ -662,33 +469,14 @@
         }
 
         .floating-btn.phone {
-            background: #2c5530;
+            background: var(--primary-color);
         }
 
         .floating-btn:hover {
             transform: scale(1.1);
         }
-        
-        /* Медиа-запросы для адаптивности */
-        @media (max-width: 1024px) {
-            .about-grid {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-            
-            .about-image {
-                max-height: 400px;
-            }
-            
-            .team-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .partners-logo-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
+
+        /* Адаптивность */
         @media (max-width: 768px) {
             .hamburger {
                 display: flex;
@@ -714,74 +502,46 @@
             .nav-item {
                 margin: 1rem 0;
             }
-            
-            .timeline:before {
-                left: 30px;
+
+            .hero h1 {
+                font-size: 2.5rem;
             }
-            
-            .timeline-dot {
-                left: 30px;
+
+            .hero p {
+                font-size: 1.1rem;
             }
-            
-            .timeline-item {
-                flex-direction: column;
-                align-items: flex-start;
+
+            .section-title {
+                font-size: 2rem;
             }
-            
-            .timeline-content {
-                width: 85%;
-                margin-left: 60px;
-            }
-            
-            .timeline-item:nth-child(odd) .timeline-content:after,
-            .timeline-item:nth-child(even) .timeline-content:after {
-                display: none;
-            }
-            
-            .timeline-date {
-                left: 0;
-            }
-            
-            .values-grid {
+
+            .founders-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .team-grid {
-                grid-template-columns: 1fr;
+
+            .intro-content h2 {
+                font-size: 2rem;
             }
-            
-            .partners-logo-grid {
-                grid-template-columns: repeat(2, 1fr);
+
+            .intro-content p {
+                font-size: 1.1rem;
             }
         }
-        
-        @media (max-width: 576px) {
-            .page-title {
-                font-size: 2.2rem;
+
+        @media (max-width: 375px) {
+            .hero {
+                padding: 150px 0 60px;
             }
-            
-            .about-numbers {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .timeline-content {
-                width: 80%;
-            }
-            
-            .partners-logo-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .cta-title {
+
+            .hero h1 {
                 font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
             }
         }
     </style>
-    
-    <!-- AOS Animation Library -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
     <!-- Навигация -->
@@ -804,186 +564,80 @@
         </div>
     </nav>
 
-    <!-- Заголовок страницы -->
-    <section class="page-hero">
-        <div class="container" data-aos="fade-up">
-            <h1>О нас</h1>
-            <p>Студия дизайна интерьера с многолетним опытом создания уникальных пространств</p>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>О создателях DI Studio</h1>
+            <p>Познакомьтесь с людьми, которые стоят за каждым нашим проектом</p>
         </div>
     </section>
 
-    <!-- О студии -->
-    <section class="about-studio">
+    <!-- Краткое описание -->
+    <section class="about-intro">
         <div class="container">
-            <div class="about-grid">
-                <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=900&q=80" alt="Наша студия" class="about-image animate-on-scroll">
-                <div class="about-content animate-on-scroll">
-                    <h2>Дизайн-студия с историей</h2>
-                    <p class="about-text">DI Studio была основана в 2012 году группой единомышленников с многолетним опытом работы в сфере архитектуры и дизайна интерьера. За годы работы мы выросли из небольшой студии в полноценную компанию с сильной командой специалистов в различных областях.</p>
-                    <p class="about-text">Наша миссия — создавать пространства, которые вдохновляют, помогают эффективно работать и комфортно жить. Мы подходим к каждому проекту индивидуально, тщательно изучая потребности и пожелания клиента, особенности помещения и его технические возможности.</p>
-                    <p class="about-text">Мы специализируемся на разработке дизайн-проектов для жилых и коммерческих помещений различного масштаба — от небольших квартир до просторных загородных домов, от уютных кафе до корпоративных офисов.</p>
-                    
-                    <div class="about-numbers">
-                        <div class="number-item">
-                            <span class="number" data-count="350">350</span>
-                            <span class="number-text">Реализованных проектов</span>
-                        </div>
-                        <div class="number-item">
-                            <span class="number" data-count="12">12</span>
-                            <span class="number-text">Лет опыта</span>
-                        </div>
-                        <div class="number-item">
-                            <span class="number" data-count="95">95%</span>
-                            <span class="number-text">Довольных клиентов</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="intro-content">
+                <h2>Наша история началась с мечты</h2>
+                <p>DI Studio была основана в [ГОД] двумя единомышленниками, которые разделяли общую страсть к созданию красивых и функциональных пространств.</p>
+                <p>Сегодня мы — команда профессионалов с многолетним опытом, которые помогают людям воплощать их мечты об идеальном интерьере в реальность.</p>
             </div>
         </div>
     </section>
 
-    <!-- Наша история -->
-    <section class="our-history">
+    <!-- Создатели -->
+    <section class="founders">
         <div class="container">
-            <h2 class="section-title">Наша история</h2>
-            <div class="timeline">
-                <div class="timeline-item animate-on-scroll">
-                    <div class="timeline-content">
-                        <span class="timeline-date">2012</span>
-                        <h3 class="timeline-title">Основание студии</h3>
-                        <p class="timeline-desc">Основание дизайн-студии тремя выпускниками архитектурного университета. Первые проекты — квартиры и небольшие офисные помещения.</p>
-                    </div>
-                    <div class="timeline-dot"></div>
-                </div>
-                
-                <div class="timeline-item animate-on-scroll">
-                    <div class="timeline-content">
-                        <span class="timeline-date">2014</span>
-                        <h3 class="timeline-title">Расширение команды</h3>
-                        <p class="timeline-desc">Привлечение новых специалистов, расширение спектра услуг. Запуск услуги авторского надзора для полного контроля над реализацией проектов.</p>
-                    </div>
-                    <div class="timeline-dot"></div>
-                </div>
-                
-                <div class="timeline-item animate-on-scroll">
-                    <div class="timeline-content">
-                        <span class="timeline-date">2016</span>
-                        <h3 class="timeline-title">Первые крупные проекты</h3>
-                        <p class="timeline-desc">Реализация первых масштабных проектов — рестораны, бутик-отели, офисы крупных компаний. Формирование собственного узнаваемого стиля студии.</p>
-                    </div>
-                    <div class="timeline-dot"></div>
-                </div>
-                
-                <div class="timeline-item animate-on-scroll">
-                    <div class="timeline-content">
-                        <span class="timeline-date">2018</span>
-                        <h3 class="timeline-title">Международное признание</h3>
-                        <p class="timeline-desc">Участие в международных выставках, первые публикации в профессиональных изданиях. Проект ресторана "Амадеус" получил престижную премию в области дизайна.</p>
-                    </div>
-                    <div class="timeline-dot"></div>
-                </div>
-                
-                <div class="timeline-item animate-on-scroll">
-                    <div class="timeline-content">
-                        <span class="timeline-date">2021</span>
-                        <h3 class="timeline-title">Переход на новый уровень</h3>
-                        <p class="timeline-desc">Применение современных технологий проектирования, использование VR для презентации проектов. Внедрение комплексного подхода ко всем проектам.</p>
-                    </div>
-                    <div class="timeline-dot"></div>
-                </div>
-                
-                <div class="timeline-item animate-on-scroll">
-                    <div class="timeline-content">
-                        <span class="timeline-date">2023</span>
-                        <h3 class="timeline-title">Сегодняшний день</h3>
-                        <p class="timeline-desc">Сегодня DI Studio — это сплоченная команда профессионалов с большим портфолио успешных проектов и постоянно растущим числом довольных клиентов.</p>
-                    </div>
-                    <div class="timeline-dot"></div>
-                </div>
-            </div>
-        </div>
-    </section>
+            <h2 class="section-title">Создатели студии</h2>
+            <div class="founders-grid">
+                <!-- Создатель 1 -->
+                <div class="founder-card">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=1000&q=80" alt="[Имя Создателя 1]" class="founder-image">
+                    <div class="founder-info">
+                        <h3 class="founder-name">[Имя Фамилия]</h3>
+                        <p class="founder-role">Со-основатель, Главный дизайнер</p>
+                        <p class="founder-bio">
+                            [Краткая биография: образование, опыт работы, что вдохновляет, философия дизайна. Например: "Окончил Архитектурный институт в 20XX году. Специализируется на современных минималистичных интерьерах с акцентом на функциональность и эстетику."]
+                        </p>
+                        
+                        <div class="founder-details">
+                            <h4>Специализация:</h4>
+                            <ul>
+                                <li><i class="fas fa-check"></i> [Например: Жилые интерьеры]</li>
+                                <li><i class="fas fa-check"></i> [Например: Планировочные решения]</li>
+                                <li><i class="fas fa-check"></i> [Например: Подбор материалов]</li>
+                            </ul>
+                        </div>
 
-    <!-- Наша команда -->
-    <section class="our-team">
-        <div class="container">
-            <h2 class="section-title">Наша команда</h2>
-            <div class="team-grid">
-                <div class="team-member animate-on-scroll">
-                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Александр Петров" class="member-image">
-                    <div class="member-info">
-                        <h3 class="member-name">Александр Петров</h3>
-                        <p class="member-position">Основатель, Главный архитектор</p>
-                        <p class="member-bio">Архитектор с 15-летним опытом работы. Специализируется на создании функциональных пространств с уникальным характером.</p>
-                        <div class="member-social">
-                            <a href="#" class="social-link">IG</a>
-                            <a href="#" class="social-link">BE</a>
-                            <a href="#" class="social-link">FB</a>
+                        <div class="founder-social">
+                            <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-link" title="Behance"><i class="fab fa-behance"></i></a>
+                            <a href="#" class="social-link" title="Email"><i class="fas fa-envelope"></i></a>
                         </div>
                     </div>
                 </div>
-                
-                <div class="team-member animate-on-scroll">
-                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Екатерина Смирнова" class="member-image">
-                    <div class="member-info">
-                        <h3 class="member-name">Екатерина Смирнова</h3>
-                        <p class="member-position">Ведущий дизайнер интерьера</p>
-                        <p class="member-bio">Дизайнер с уникальным чувством стиля и внимания к деталям. Мастер создания гармоничных цветовых решений.</p>
-                        <div class="member-social">
-                            <a href="#" class="social-link">IG</a>
-                            <a href="#" class="social-link">BE</a>
+
+                <!-- Создатель 2 -->
+                <div class="founder-card">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=1000&q=80" alt="[Имя Создателя 2]" class="founder-image">
+                    <div class="founder-info">
+                        <h3 class="founder-name">[Имя Фамилия]</h3>
+                        <p class="founder-role">Со-основатель, Технический директор</p>
+                        <p class="founder-bio">
+                            [Краткая биография: образование, опыт работы, что вдохновляет, философия дизайна. Например: "Более 10 лет опыта в проектировании и технической реализации интерьеров. Отвечает за все технические аспекты проектов."]
+                        </p>
+                        
+                        <div class="founder-details">
+                            <h4>Специализация:</h4>
+                            <ul>
+                                <li><i class="fas fa-check"></i> [Например: Техническая документация]</li>
+                                <li><i class="fas fa-check"></i> [Например: 3D-визуализация]</li>
+                                <li><i class="fas fa-check"></i> [Например: Авторский надзор]</li>
+                            </ul>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="team-member animate-on-scroll">
-                    <img src="https://images.unsplash.com/photo-1581382575275-97901c2635b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Дмитрий Иванов" class="member-image">
-                    <div class="member-info">
-                        <h3 class="member-name">Дмитрий Иванов</h3>
-                        <p class="member-position">3D-визуализатор</p>
-                        <p class="member-bio">Специалист по созданию фотореалистичных 3D-визуализаций интерьеров и экстерьеров. Превращает идеи в наглядные изображения.</p>
-                        <div class="member-social">
-                            <a href="#" class="social-link">IG</a>
-                            <a href="#" class="social-link">BE</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="team-member animate-on-scroll">
-                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Сергей Козлов" class="member-image">
-                    <div class="member-info">
-                        <h3 class="member-name">Сергей Козлов</h3>
-                        <p class="member-position">Технический директор</p>
-                        <p class="member-bio">Отвечает за техническую документацию и чертежи. Эксперт по стандартам проектирования и строительным нормам.</p>
-                        <div class="member-social">
-                            <a href="#" class="social-link">IG</a>
-                            <a href="#" class="social-link">LI</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="team-member animate-on-scroll">
-                    <img src="https://images.unsplash.com/photo-1596815064285-45ed8a9c0463?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Мария Алексеева" class="member-image">
-                    <div class="member-info">
-                        <h3 class="member-name">Мария Алексеева</h3>
-                        <p class="member-position">Дизайнер по свету</p>
-                        <p class="member-bio">Специалист по световому дизайну и освещению интерьеров. Создает атмосферу пространства с помощью правильного света.</p>
-                        <div class="member-social">
-                            <a href="#" class="social-link">IG</a>
-                            <a href="#" class="social-link">BE</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="team-member animate-on-scroll">
-                    <img src="https://images.unsplash.com/photo-1540569014015-19a7be504e3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Анна Соколова" class="member-image">
-                    <div class="member-info">
-                        <h3 class="member-name">Анна Соколова</h3>
-                        <p class="member-position">Менеджер проектов</p>
-                        <p class="member-bio">Координирует все процессы и коммуникацию между клиентами и командой. Следит за соблюдением сроков и качеством работы.</p>
-                        <div class="member-social">
-                            <a href="#" class="social-link">IG</a>
-                            <a href="#" class="social-link">LI</a>
+
+                        <div class="founder-social">
+                            <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                            <a href="#" class="social-link" title="Email"><i class="fas fa-envelope"></i></a>
                         </div>
                     </div>
                 </div>
@@ -992,107 +646,39 @@
     </section>
 
     <!-- Наши ценности -->
-    <section class="our-values">
+    <section class="values">
         <div class="container">
             <h2 class="section-title">Наши ценности</h2>
             <div class="values-grid">
-                <div class="value-card animate-on-scroll">
-                    <div class="value-icon">&#128161;</div>
-                    <div class="value-content">
-                        <h3>Качество и внимание к деталям</h3>
-                        <p>Мы уделяем пристальное внимание каждой детали проекта, от общей концепции до мельчайших нюансов реализации. Качество для нас — это не просто слово, а основной принцип работы.</p>
-                    </div>
+                <div class="value-card">
+                    <div class="value-icon">💎</div>
+                    <h3>Качество</h3>
+                    <p>Мы уделяем внимание каждой детали, создавая проекты высочайшего качества</p>
                 </div>
-                
-                <div class="value-card animate-on-scroll">
-                    <div class="value-icon">&#128640;</div>
-                    <div class="value-content">
-                        <h3>Инновации и креативность</h3>
-                        <p>Мы постоянно следим за новыми тенденциями в дизайне и технологиях, интегрируя современные решения в наши проекты. Креативный подход помогает нам создавать уникальные пространства.</p>
-                    </div>
+                <div class="value-card">
+                    <div class="value-icon">🎨</div>
+                    <h3>Креативность</h3>
+                    <p>Каждый проект уникален и отражает индивидуальность наших клиентов</p>
                 </div>
-                
-                <div class="value-card animate-on-scroll">
-                    <div class="value-icon">&#128101;</div>
-                    <div class="value-content">
-                        <h3>Клиентоориентированность</h3>
-                        <p>Мы ставим потребности и ожидания клиента на первое место. Открытый диалог, прозрачность в работе и готовность учитывать пожелания заказчика — основа нашего подхода.</p>
-                    </div>
-                </div>
-                
-                <div class="value-card animate-on-scroll">
-                    <div class="value-icon">&#127793;</div>
-                    <div class="value-content">
-                        <h3>Экологичность</h3>
-                        <p>Мы стремимся к созданию экологически ответственных проектов, используя энергоэффективные решения и натуральные материалы там, где это возможно.</p>
-                    </div>
-                </div>
-                
-                <div class="value-card animate-on-scroll">
-                    <div class="value-icon">&#128736;</div>
-                    <div class="value-content">
-                        <h3>Функциональность</h3>
-                        <p>Красивый дизайн должен быть еще и удобным. Мы создаем пространства, которые не только эстетически привлекательны, но и максимально функциональны для повседневной жизни или работы.</p>
-                    </div>
-                </div>
-                
-                <div class="value-card animate-on-scroll">
-                    <div class="value-icon">&#128200;</div>
-                    <div class="value-content">
-                        <h3>Профессиональное развитие</h3>
-                        <p>Мы постоянно повышаем квалификацию наших специалистов, участвуем в профессиональных выставках и семинарах, изучаем новые технологии и материалы.</p>
-                    </div>
+                <div class="value-card">
+                    <div class="value-icon">🤝</div>
+                    <h3>Честность</h3>
+                    <p>Открытое общение и прозрачность на всех этапах сотрудничества</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Наши партнёры -->
-    <section class="our-partners">
+    <!-- CTA -->
+    <section class="cta">
         <div class="container">
-            <h2 class="section-title">Наши партнёры</h2>
-            <p class="page-description" style="margin-bottom: 40px;">Мы гордимся сотрудничеством с ведущими поставщиками материалов, производителями мебели и строительными компаниями, что позволяет нам реализовывать проекты на высоком уровне.</p>
-            
-            <div class="partners-logo-grid">
-                <!-- Здесь будут логотипы партнеров (для демо используем плейсхолдеры) -->
-                <div class="partner-logo animate-on-scroll">
-                    <span style="font-size: 24px; font-weight: bold; color: #666;">PARTNER 1</span>
-                </div>
-                <div class="partner-logo animate-on-scroll">
-                    <span style="font-size: 24px; font-weight: bold; color: #666;">PARTNER 2</span>
-                </div>
-                <div class="partner-logo animate-on-scroll">
-                    <span style="font-size: 24px; font-weight: bold; color: #666;">PARTNER 3</span>
-                </div>
-                <div class="partner-logo animate-on-scroll">
-                    <span style="font-size: 24px; font-weight: bold; color: #666;">PARTNER 4</span>
-                </div>
-                <div class="partner-logo animate-on-scroll">
-                    <span style="font-size: 24px; font-weight: bold; color: #666;">PARTNER 5</span>
-                </div>
-                <div class="partner-logo animate-on-scroll">
-                    <span style="font-size: 24px; font-weight: bold; color: #666;">PARTNER 6</span>
-                </div>
-                <div class="partner-logo animate-on-scroll">
-                    <span style="font-size: 24px; font-weight: bold; color: #666;">PARTNER 7</span>
-                </div>
-                <div class="partner-logo animate-on-scroll">
-                    <span style="font-size: 24px; font-weight: bold; color: #666;">PARTNER 8</span>
-                </div>
-            </div>
+            <h2>Готовы начать свой проект?</h2>
+            <p>Свяжитесь с нами, и мы воплотим ваши идеи в реальность</p>
+            <a href="index.html#contact" class="btn">Связаться с нами</a>
         </div>
     </section>
 
-    <!-- CTA секция -->
-    <section class="cta-section">
-        <div class="container">
-            <h2 class="cta-title">Готовы воплотить свою мечту в реальность?</h2>
-            <p class="cta-text">Доверьте нам создание идеального интерьера для вашего дома или бизнеса. Мы поможем реализовать проект любой сложности с учетом ваших потребностей и бюджета.</p>
-            <a href="contacts.html" class="btn">Связаться с нами</a>
-        </div>
-    </section>
-
-    <!-- Footer -->
+    <!-- Футер -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
@@ -1114,7 +700,6 @@
                     <ul class="footer-links">
                         <li><a href="about-page.html">О нас</a></li>
                         <li><a href="portfolio.html">Портфолио</a></li>
-                        <li><a href="about-page.html">Команда</a></li>
                         <li><a href="index.html#contact">Контакты</a></li>
                     </ul>
                 </div>
@@ -1135,7 +720,6 @@
         </a>
     </div>
 
-    <!-- Скрипты -->
     <script>
         // Навигация при скролле
         window.addEventListener('scroll', () => {
@@ -1160,77 +744,6 @@
             link.addEventListener('click', () => {
                 navMenu.classList.remove('active');
             });
-        });
-        
-        // Анимация при скролле
-        const animateElements = document.querySelectorAll('.animate-on-scroll');
-        
-        function checkIfInView() {
-            const windowHeight = window.innerHeight;
-            const windowTopPosition = window.scrollY;
-            const windowBottomPosition = windowTopPosition + windowHeight;
-
-            animateElements.forEach(element => {
-                const elementHeight = element.offsetHeight;
-                const elementTopPosition = element.offsetTop;
-                const elementBottomPosition = elementTopPosition + elementHeight;
-
-                if (
-                    (elementBottomPosition >= windowTopPosition) &&
-                    (elementTopPosition <= windowBottomPosition)
-                ) {
-                    element.classList.add('animate');
-                }
-            });
-        }
-        
-        window.addEventListener('scroll', checkIfInView);
-        window.addEventListener('load', checkIfInView);
-        
-        // Анимация чисел
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-        
-        const numberElements = document.querySelectorAll('.number');
-        let animated = false;
-        
-        function handleNumberAnimation() {
-            const numbersSection = document.querySelector('.about-numbers');
-            const numbersSectionTop = numbersSection.getBoundingClientRect().top;
-            const windowHeight = window.innerHeight;
-            
-            if (numbersSectionTop < windowHeight * 0.8 && !animated) {
-                numberElements.forEach(numberElement => {
-                    const finalValue = parseInt(numberElement.getAttribute('data-count'));
-                    animateValue(numberElement, 0, finalValue, 2000);
-                });
-                animated = true;
-            }
-        }
-        
-        window.addEventListener('scroll', handleNumberAnimation);
-        window.addEventListener('load', handleNumberAnimation);
-    </script>
-    
-    <!-- AOS Library -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        // Initialize AOS
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true,
-            offset: 100
         });
     </script>
 </body>
