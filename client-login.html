@@ -420,8 +420,21 @@
                 phoneInput.addEventListener('input', function(e) {
                     let value = e.target.value.replace(/\D/g, '');
                     
-                    if (value.length > 0 && value[0] !== '7') {
+                    // Если пользователь полностью очистил поле, не добавляем +7
+                    if (value.length === 0) {
+                        e.target.value = '';
+                        if (clearPhoneBtn) clearPhoneBtn.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Если первая цифра не 7, добавляем 7
+                    if (value[0] !== '7') {
                         value = '7' + value;
+                    }
+                    
+                    // Ограничиваем длину (7 + 10 цифр)
+                    if (value.length > 11) {
+                        value = value.substring(0, 11);
                     }
                     
                     let formattedValue = '';
@@ -446,6 +459,19 @@
                     // Показываем/скрываем кнопку очистки
                     if (clearPhoneBtn) {
                         clearPhoneBtn.style.display = formattedValue.length > 0 ? 'block' : 'none';
+                    }
+                });
+                
+                // Обработка клавиши Backspace/Delete
+                phoneInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' || e.key === 'Delete') {
+                        const value = e.target.value;
+                        // Если в поле только '+7', очищаем полностью
+                        if (value === '+7' || value === '+7 ') {
+                            e.preventDefault();
+                            e.target.value = '';
+                            if (clearPhoneBtn) clearPhoneBtn.style.display = 'none';
+                        }
                     }
                 });
             }
