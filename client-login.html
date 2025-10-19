@@ -417,12 +417,17 @@
             const clearPhoneBtn = document.getElementById('clearPhoneBtn');
             
             if (phoneInput) {
+                // Хранение чистого значения (только цифры)
+                let cleanValue = '';
+                
                 phoneInput.addEventListener('input', function(e) {
+                    // Получаем только цифры
                     let value = e.target.value.replace(/\D/g, '');
                     
-                    // Если пользователь полностью очистил поле, не добавляем +7
+                    // Если пользователь полностью очистил поле
                     if (value.length === 0) {
                         e.target.value = '';
+                        cleanValue = '';
                         if (clearPhoneBtn) clearPhoneBtn.style.display = 'none';
                         return;
                     }
@@ -437,6 +442,9 @@
                         value = value.substring(0, 11);
                     }
                     
+                    cleanValue = value;
+                    
+                    // Форматируем
                     let formattedValue = '';
                     if (value.length > 0) {
                         formattedValue = '+7';
@@ -465,11 +473,45 @@
                 // Обработка клавиши Backspace/Delete
                 phoneInput.addEventListener('keydown', function(e) {
                     if (e.key === 'Backspace' || e.key === 'Delete') {
+                        const cursorPos = e.target.selectionStart;
                         const value = e.target.value;
+                        
+                        // Если курсор после дефиса, скобки или пробела - удаляем цифру ДО символа
+                        const charBeforeCursor = value[cursorPos - 1];
+                        if (charBeforeCursor === '-' || charBeforeCursor === ')' || charBeforeCursor === ' ' || charBeforeCursor === '(') {
+                            e.preventDefault();
+                            // Удаляем последнюю цифру из cleanValue
+                            if (cleanValue.length > 1) {
+                                cleanValue = cleanValue.substring(0, cleanValue.length - 1);
+                                // Форматируем заново
+                                let formatted = '+7';
+                                if (cleanValue.length > 1) {
+                                    formatted += ' (' + cleanValue.substring(1, 4);
+                                }
+                                if (cleanValue.length >= 4) {
+                                    formatted += ') ' + cleanValue.substring(4, 7);
+                                }
+                                if (cleanValue.length >= 7) {
+                                    formatted += '-' + cleanValue.substring(7, 9);
+                                }
+                                if (cleanValue.length >= 9) {
+                                    formatted += '-' + cleanValue.substring(9, 11);
+                                }
+                                e.target.value = formatted;
+                            } else {
+                                // Очищаем полностью
+                                e.target.value = '';
+                                cleanValue = '';
+                                if (clearPhoneBtn) clearPhoneBtn.style.display = 'none';
+                            }
+                            return;
+                        }
+                        
                         // Если в поле только '+7', очищаем полностью
-                        if (value === '+7' || value === '+7 ') {
+                        if (value === '+7' || value === '+7 ' || cleanValue.length <= 1) {
                             e.preventDefault();
                             e.target.value = '';
+                            cleanValue = '';
                             if (clearPhoneBtn) clearPhoneBtn.style.display = 'none';
                         }
                     }
