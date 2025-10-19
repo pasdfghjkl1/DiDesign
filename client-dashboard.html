@@ -8,6 +8,149 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/responsive-fixes.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        /* Стили для уведомлений */
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            min-width: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        
+        .menu-link {
+            position: relative;
+        }
+        
+        /* Чат */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #fafafa;
+        }
+        
+        .chat-message {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .chat-message.outgoing {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            max-width: 60%;
+        }
+        
+        .message-bubble {
+            background: white;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .chat-message.outgoing .message-bubble {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+        
+        .chat-message.outgoing .message-time {
+            color: rgba(255,255,255,0.7);
+            text-align: right;
+        }
+        
+        .message-unread {
+            border-left: 3px solid #e74c3c;
+            padding-left: 1rem;
+        }
+        
+        .chat-input-area {
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e5e5;
+            border-radius: 25px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .chat-input:focus {
+            border-color: var(--primary-light);
+        }
+        
+        .chat-send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-send-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
 </head>
 <body>
     <!-- Загрузочный экран (скрывает контент до проверки прав) -->
@@ -52,6 +195,13 @@
                 <a href="#" class="menu-link active" onclick="showSection('overview')">
                     <i class="fas fa-home menu-icon"></i>
                     <span>Обзор</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('chat')">
+                    <i class="fas fa-comments menu-icon"></i>
+                    <span>Чат</span>
+                    <span class="notification-badge" id="chatBadge" style="display: none;">0</span>
                 </a>
             </li>
             <li class="menu-item">
@@ -144,6 +294,30 @@
             </div>
         </section>
 
+        <!-- Секция: Чат -->
+        <section class="content-section" id="chat-section">
+            <div class="page-header">
+                <h1 class="page-title">Чат с дизайнером</h1>
+                <p class="page-subtitle">Общайтесь с нашей командой</p>
+            </div>
+            
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Сообщения загружаются динамически -->
+                    <div class="loader">
+                        <div class="spinner-large"></div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Напишите сообщение..." />
+                    <button class="chat-send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- Секция: Файлы -->
         <section class="content-section" id="files-section">
             <div class="page-header">
@@ -225,6 +399,13 @@
             document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
             document.getElementById(sectionName + '-section').classList.add('active');
             event.currentTarget.classList.add('active');
+            
+            // Сбрасываем badge при открытии чата
+            if (sectionName === 'chat') {
+                updateChatBadge(0);
+                // TODO: Отметить все сообщения как прочитанные в Firebase
+            }
+            
             if (window.innerWidth <= 968) {
                 document.getElementById('sidebar').classList.remove('open');
             }
@@ -251,6 +432,75 @@
             event.currentTarget.classList.add('active');
             loadAllFiles();
         }
+        
+        // Функция обновления badge
+        function updateChatBadge(count) {
+            const badge = document.getElementById('chatBadge');
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        // Проверка новых сообщений каждые 30 секунд
+        function checkForNewMessages() {
+            // TODO: Запрос к Firebase для получения количества непрочитанных
+            // Пока просто пример с тестовыми данными
+            const testUnreadCount = Math.floor(Math.random() * 5); // Для демо
+            updateChatBadge(testUnreadCount);
+        }
+        
+        // Отправка сообщения
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                // TODO: Отправка сообщения в Firebase
+                console.log('Sending message:', message);
+                input.value = '';
+                
+                // Для демо: добавляем сообщение на экран
+                addMessageToChat(message, true);
+            }
+        }
+        
+        // Добавление сообщения в чат
+        function addMessageToChat(text, isOutgoing = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message' + (isOutgoing ? ' outgoing' : '');
+            
+            const now = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${isOutgoing ? 'I' : 'D'}</div>
+                <div class="message-content">
+                    <div class="message-bubble">${text}</div>
+                    <div class="message-time">${now}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Запуск проверки сообщений
+        setInterval(checkForNewMessages, 30000); // Каждые 30 секунд
+        
+        // Enter для отправки
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
