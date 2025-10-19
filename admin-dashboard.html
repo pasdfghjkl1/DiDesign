@@ -535,6 +535,65 @@
                     <p>Завершённых проектов</p>
                 </div>
             </div>
+            <div class="stat-card" style="cursor: pointer;" onclick="toggleFinancials()">
+                <div class="stat-icon" style="background: #27ae60;">
+                    <i class="fas fa-ruble-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalRevenue">0 ₽</h3>
+                    <p>Общая выручка</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Финансовая панель -->
+        <div class="financial-panel" id="financialPanel" style="display: none;">
+            <div class="clients-table-container" style="margin-bottom: 2rem;">
+                <div class="table-header">
+                    <h2><i class="fas fa-chart-line"></i> Финансовая информация</h2>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <div class="financial-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div class="financial-item">
+                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">Ожидаемые платежи</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #f39c12;"><span id="pendingPayments">0 ₽</span></div>
+                        </div>
+                        <div class="financial-item">
+                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">Получено</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #27ae60;"><span id="receivedPayments">0 ₽</span></div>
+                        </div>
+                        <div class="financial-item">
+                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">Просрочено</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #e74c3c;"><span id="overduePayments">0 ₽</span></div>
+                        </div>
+                        <div class="financial-item">
+                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">Средний чек</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);"><span id="averageCheck">0 ₽</span></div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 1rem;">📊 Детализация по проектам</h3>
+                    <table class="clients-table">
+                        <thead>
+                            <tr>
+                                <th>Клиент</th>
+                                <th>Проект</th>
+                                <th>Стоимость</th>
+                                <th>Оплачено</th>
+                                <th>Остаток</th>
+                                <th>Статус оплаты</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financialTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                    Загрузка данных...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Панель действий -->
@@ -648,5 +707,85 @@
 
     <!-- Логика админ-панели -->
     <script src="js/admin.js"></script>
+    
+    <script>
+        // Тоггл финансовой панели
+        function toggleFinancials() {
+            const panel = document.getElementById('financialPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                loadFinancialData();
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+        
+        // Загрузка финансовых данных
+        function loadFinancialData() {
+            // TODO: Загрузка из Firebase
+            // Пока тестовые данные
+            const testData = {
+                totalRevenue: 2450000,
+                pending: 850000,
+                received: 1600000,
+                overdue: 150000,
+                projects: [
+                    {
+                        client: 'Иванов Иван',
+                        project: 'Дизайн квартиры 70м²',
+                        total: 450000,
+                        paid: 300000,
+                        status: 'Частично'
+                    },
+                    {
+                        client: 'Петров Пётр',
+                        project: 'Офис 120м²',
+                        total: 800000,
+                        paid: 800000,
+                        status: 'Оплачено'
+                    },
+                    {
+                        client: 'Сидорова Анна',
+                        project: 'Загородный дом 200м²',
+                        total: 1200000,
+                        paid: 500000,
+                        status: 'Частично'
+                    }
+                ]
+            };
+            
+            // Обновляем статистику
+            document.getElementById('totalRevenue').textContent = formatMoney(testData.totalRevenue);
+            document.getElementById('pendingPayments').textContent = formatMoney(testData.pending);
+            document.getElementById('receivedPayments').textContent = formatMoney(testData.received);
+            document.getElementById('overduePayments').textContent = formatMoney(testData.overdue);
+            document.getElementById('averageCheck').textContent = formatMoney(testData.totalRevenue / testData.projects.length);
+            
+            // Заполняем таблицу
+            const tbody = document.getElementById('financialTableBody');
+            tbody.innerHTML = '';
+            
+            testData.projects.forEach(proj => {
+                const remaining = proj.total - proj.paid;
+                const statusClass = proj.status === 'Оплачено' ? 'active' : 'pending';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${proj.client}</td>
+                        <td>${proj.project}</td>
+                        <td><strong>${formatMoney(proj.total)}</strong></td>
+                        <td style="color: #27ae60;">${formatMoney(proj.paid)}</td>
+                        <td style="color: ${remaining > 0 ? '#e74c3c' : '#27ae60'};">${formatMoney(remaining)}</td>
+                        <td><span class="status-badge ${statusClass}">${proj.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // Форматирование денег
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('ru-RU').format(amount) + ' ₽';
+        }
+    </script>
 </body>
 </html>

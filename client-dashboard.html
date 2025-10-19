@@ -160,6 +160,61 @@
             transform: translateY(-8px) scale(1.02);
             box-shadow: 0 25px 70px rgba(0,0,0,0.2);
         }
+        
+        /* Дедлайны */
+        .deadline-urgent {
+            color: #e74c3c !important;
+            animation: urgentPulse 2s infinite;
+        }
+        
+        .deadline-warning {
+            color: #f39c12 !important;
+        }
+        
+        .deadline-normal {
+            color: #27ae60 !important;
+        }
+        
+        @keyframes urgentPulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        
+        .deadline-card {
+            position: relative;
+        }
+        
+        .deadline-card.urgent::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .deadline-card.warning::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .deadline-details {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -271,7 +326,7 @@
                     </div>
                 </div>
 
-                <div class="card" style="cursor: pointer;" onclick="showSectionByLink(event, 'timeline')">
+                <div class="card deadline-card" id="deadlineCard" style="cursor: pointer;" onclick="showSectionByLink(event, 'timeline')">
                     <div class="card-header">
                         <div class="card-title">Ближайший дедлайн</div>
                         <div class="card-icon">
@@ -280,6 +335,7 @@
                     </div>
                     <div class="card-value" id="deadlineValue" style="font-size: 1.5rem;">-</div>
                     <div class="card-label" id="deadlineLabel">Загрузка...</div>
+                    <div class="deadline-details" id="deadlineDetails"></div>
                 </div>
 
                 <div class="card" style="cursor: pointer;" onclick="showSectionByLink(event, 'files')">
@@ -521,7 +577,64 @@
                     }
                 });
             }
+            
+            // Демо: установка дедлайна для примера
+            updateDeadline(new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), 'Утверждение концепции');
         });
+        
+        // Функция обновления дедлайна с цветовой индикацией
+        function updateDeadline(deadlineDate, taskName = '') {
+            const now = new Date();
+            const diffTime = deadlineDate - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            const valueEl = document.getElementById('deadlineValue');
+            const labelEl = document.getElementById('deadlineLabel');
+            const detailsEl = document.getElementById('deadlineDetails');
+            const cardEl = document.getElementById('deadlineCard');
+            
+            // Форматируем дату
+            const options = { day: 'numeric', month: 'long' };
+            const formattedDate = deadlineDate.toLocaleDateString('ru-RU', options);
+            
+            // Определяем срочность
+            let urgencyClass = '';
+            let urgencyText = '';
+            
+            if (diffDays < 0) {
+                urgencyClass = 'deadline-urgent';
+                urgencyText = '⚠️ Просрочено!';
+                cardEl.classList.add('urgent');
+            } else if (diffDays === 0) {
+                urgencyClass = 'deadline-urgent';
+                urgencyText = '🔥 Сегодня!';
+                cardEl.classList.add('urgent');
+            } else if (diffDays === 1) {
+                urgencyClass = 'deadline-urgent';
+                urgencyText = '⏰ Завтра';
+                cardEl.classList.add('urgent');
+            } else if (diffDays <= 3) {
+                urgencyClass = 'deadline-warning';
+                urgencyText = `📅 Через ${diffDays} дня`;
+                cardEl.classList.add('warning');
+            } else if (diffDays <= 7) {
+                urgencyClass = 'deadline-warning';
+                urgencyText = `📅 Через ${diffDays} дней`;
+                cardEl.classList.add('warning');
+            } else {
+                urgencyClass = 'deadline-normal';
+                urgencyText = `📅 Через ${diffDays} дней`;
+            }
+            
+            // Обновляем UI
+            valueEl.textContent = formattedDate;
+            valueEl.className = 'card-value ' + urgencyClass;
+            labelEl.textContent = urgencyText;
+            
+            if (taskName) {
+                detailsEl.textContent = `Задача: ${taskName}`;
+            }
+        }
     </script>
 </body>
 </html>
