@@ -236,7 +236,7 @@
         function logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
                 firebaseAuth.signOut().then(() => {
-                    window.location.href = 'client-login.html';
+                    window.location.href = 'index.html';
                 });
             }
         }

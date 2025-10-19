@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('formTitle').textContent = 'Создание пароля';
         document.getElementById('formSubtitle').textContent = 'Создайте пароль для доступа к вашему проекту';
         
-        showAlert('info', 'Добро пожаловать! Создайте пароль для безопасного доступа.');
+        hideAllAlerts();
     }
 
     function showLoginStep() {
@@ -321,13 +321,31 @@ document.addEventListener('DOMContentLoaded', function() {
 }); // Конец DOMContentLoaded
 
 // ============================================
-// Проверка авторизации (вне DOMContentLoaded)
+// Проверка авторизации и автовход (вне DOMContentLoaded)
 // ============================================
 if (window.firebaseAuth) {
-    window.firebaseAuth.onAuthStateChanged((user) => {
+    window.firebaseAuth.onAuthStateChanged(async (user) => {
         if (user && window.location.pathname.includes('client-login.html')) {
-            // Пользователь уже авторизован, перенаправляем в кабинет
-            window.location.href = 'client-dashboard.html';
+            // Пользователь уже авторизован - проверяем роль и перенаправляем
+            try {
+                const phone = user.email.replace('@di-studio.local', '');
+                const clientDoc = await window.firebaseDb.collection('clients').doc(phone).get();
+                
+                if (clientDoc.exists) {
+                    const isAdmin = clientDoc.data()?.isAdmin || false;
+                    
+                    if (isAdmin === true) {
+                        window.location.href = 'admin-dashboard.html';
+                    } else {
+                        window.location.href = 'client-dashboard.html';
+                    }
+                } else {
+                    // Если данные не найдены - выходим
+                    await window.firebaseAuth.signOut();
+                }
+            } catch (error) {
+                console.error('Ошибка проверки автовхода:', error);
+            }
         }
     });
 }

@@ -295,13 +295,18 @@
                         <label class="form-label" for="phoneInput">
                             <i class="fas fa-phone"></i> Номер телефона
                         </label>
-                        <input 
-                            type="tel" 
-                            id="phoneInput" 
-                            class="form-control" 
-                            placeholder="+7 (999) 123-45-67"
-                            required
-                        >
+                        <div class="password-toggle">
+                            <input 
+                                type="tel" 
+                                id="phoneInput" 
+                                class="form-control" 
+                                placeholder="+7 (999) 123-45-67"
+                                required
+                            >
+                            <button type="button" class="toggle-password" onclick="clearPhone()" id="clearPhoneBtn" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary" id="checkPhoneBtn">
@@ -409,6 +414,7 @@
         // Маска для телефона
         document.addEventListener('DOMContentLoaded', function() {
             const phoneInput = document.getElementById('phoneInput');
+            const clearPhoneBtn = document.getElementById('clearPhoneBtn');
             
             if (phoneInput) {
                 phoneInput.addEventListener('input', function(e) {
@@ -436,9 +442,29 @@
                     }
                     
                     e.target.value = formattedValue;
+                    
+                    // Показываем/скрываем кнопку очистки
+                    if (clearPhoneBtn) {
+                        clearPhoneBtn.style.display = formattedValue.length > 0 ? 'block' : 'none';
+                    }
                 });
             }
         });
+        
+        // Функция очистки поля телефона
+        function clearPhone() {
+            const phoneInput = document.getElementById('phoneInput');
+            const clearPhoneBtn = document.getElementById('clearPhoneBtn');
+            
+            if (phoneInput) {
+                phoneInput.value = '';
+                phoneInput.focus();
+            }
+            
+            if (clearPhoneBtn) {
+                clearPhoneBtn.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>

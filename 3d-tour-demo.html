@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Демо 3D-тур | DI Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .project-info {
+            padding: 25px;
+        }
+
+        .project-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .project-description {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-badges {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .badge.has-tour {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-tour {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2c5530 0%, #6c9c84 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-tour:hover {
+            background: linear-gradient(135deg, #1f3d23 0%, #4d7a64 100%);
+            transform: scale(1.02);
+        }
+
+        .btn-tour:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            position: relative;
+            overflow: hidden;
+            animation: modalAppear 0.3s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2c5530 0%, #6c9c84 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        .tour-iframe {
+            width: 100%;
+            height: calc(100% - 80px);
+            border: none;
+        }
+
+        .info-banner {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .info-banner h2 {
+            font-family: 'Playfair Display', serif;
+            color: #2c5530;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .info-banner p {
+            color: #666;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .info-banner strong {
+            color: #2c5530;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                height: 95vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Демонстрация 3D-туров</h1>
+            <p>Посмотри, как будут выглядеть виртуальные туры в твоём портфолио</p>
+        </div>
+
+        <div class="projects-grid">
+            <!-- Проект с 3D-туром -->
+            <div class="project-card" onclick="openTour('tour1')">
+                <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600&h=400&fit=crop" alt="Современная квартира" class="project-image">
+                <div class="project-info">
+                    <h3 class="project-title">Современная квартира</h3>
+                    <p class="project-description">Минималистичный дизайн с элементами лофта. Открытая планировка и панорамные окна.</p>
+                    <div class="project-badges">
+                        <span class="badge">85 м²</span>
+                        <span class="badge">2024</span>
+                        <span class="badge has-tour">✨ 3D-тур доступен</span>
+                    </div>
+                    <button class="btn-tour">
+                        🏠 Открыть 3D-тур
+                    </button>
+                </div>
+            </div>
+
+            <!-- Проект с 3D-туром -->
+            <div class="project-card" onclick="openTour('tour2')">
+                <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop" alt="Загородный дом" class="project-image">
+                <div class="project-info">
+                    <h3 class="project-title">Загородный дом в Скандинавском стиле</h3>
+                    <p class="project-description">Уютный интерьер с натуральными материалами и светлой цветовой гаммой.</p>
+                    <div class="project-badges">
+                        <span class="badge">120 м²</span>
+                        <span class="badge">2023</span>
+                        <span class="badge has-tour">✨ 3D-тур доступен</span>
+                    </div>
+                    <button class="btn-tour">
+                        🏠 Открыть 3D-тур
+                    </button>
+                </div>
+            </div>
+
+            <!-- Проект БЕЗ 3D-тура -->
+            <div class="project-card">
+                <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&h=400&fit=crop" alt="Офисное пространство" class="project-image">
+                <div class="project-info">
+                    <h3 class="project-title">Офисное пространство</h3>
+                    <p class="project-description">Современный офис с зонами для коллаборации и работы.</p>
+                    <div class="project-badges">
+                        <span class="badge">200 м²</span>
+                        <span class="badge">2024</span>
+                    </div>
+                    <button class="btn-tour" disabled>
+                        📷 Только фотографии
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-banner">
+            <h2>📱 Как это работает?</h2>
+            <p>
+                Когда ты создашь свои <strong>3D-туры</strong> в программах типа <strong>3ds Max + V-Ray/Corona</strong> 
+                или <strong>Planoplan</strong>, ты просто добавишь ссылку на тур в файл <code>portfolio.json</code>.<br><br>
+                Кнопка <strong>"3D-тур"</strong> автоматически появится только на тех проектах, где тур доступен! 🎯
+            </p>
+        </div>
+    </div>
+
+    <!-- Модальное окно для 3D-тура -->
+    <div class="modal" id="tourModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">3D-тур</h2>
+                <button class="close-btn" onclick="closeTour()">&times;</button>
+            </div>
+            <iframe class="tour-iframe" id="tourIframe" src="" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Примеры публичных 3D-туров для демонстрации
+        const tours = {
+            'tour1': {
+                title: 'Современная квартира - 3D-тур',
+                url: 'https://my.matterport.com/show/?m=SxQL3iGyoDo' // Публичный демо-тур Matterport
+            },
+            'tour2': {
+                title: 'Загородный дом - 3D-тур',
+                url: 'https://my.matterport.com/show/?m=j4RZx7ZGM6T' // Другой публичный демо-тур
+            }
+        };
+
+        function openTour(tourId) {
+            const tour = tours[tourId];
+            if (tour) {
+                document.getElementById('modalTitle').textContent = tour.title;
+                document.getElementById('tourIframe').src = tour.url;
+                document.getElementById('tourModal').classList.add('active');
+                document.body.style.overflow = 'hidden'; // Блокируем прокрутку
+            }
+        }
+
+        function closeTour() {
+            document.getElementById('tourModal').classList.remove('active');
+            document.getElementById('tourIframe').src = ''; // Останавливаем загрузку
+            document.body.style.overflow = ''; // Возвращаем прокрутку
+        }
+
+        // Закрытие по клику вне модального окна
+        document.getElementById('tourModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTour();
+            }
+        });
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTour();
+            }
+        });
+    </script>
+</body>
+</html>

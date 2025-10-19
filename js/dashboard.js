@@ -150,7 +150,7 @@ async function loadRecentFiles() {
         const container = document.getElementById('recentFiles');
 
         if (filesSnapshot.empty) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Файлы еще не добавлены</p></div>';
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Пока пусто</p></div>';
             return;
         }
 
@@ -183,7 +183,7 @@ async function loadAllFiles() {
         const filesSnapshot = await query.orderBy('uploadDate', 'desc').get();
 
         if (filesSnapshot.empty) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Файлов не найдено</p></div>';
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Пока пусто</p></div>';
             return;
         }
 
@@ -195,7 +195,7 @@ async function loadAllFiles() {
 
     } catch (error) {
         console.error('Ошибка загрузки файлов:', error);
-        document.getElementById('allFiles').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Ошибка загрузки файлов</p></div>';
+        document.getElementById('allFiles').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Пока пусто</p></div>';
     }
 }
 
@@ -325,7 +325,7 @@ async function loadVersions() {
             .get();
 
         if (filesSnapshot.empty) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>История версий пуста</p></div>';
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>Пока пусто</p></div>';
             return;
         }
 
@@ -381,7 +381,7 @@ async function loadVersions() {
 
     } catch (error) {
         console.error('Ошибка загрузки версий:', error);
-        document.getElementById('versionsContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Ошибка загрузки истории</p></div>';
+        document.getElementById('versionsContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Пока пусто</p></div>';
     }
 }
 
@@ -396,7 +396,7 @@ async function loadTimeline() {
         const stages = clientData.project?.stages || [];
 
         if (stages.length === 0) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>Этапы проекта еще не добавлены</p></div>';
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>Пока пусто</p></div>';
             return;
         }
 
@@ -431,7 +431,7 @@ async function loadTimeline() {
 
     } catch (error) {
         console.error('Ошибка загрузки таймлайна:', error);
-        document.getElementById('projectTimeline').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Ошибка загрузки этапов</p></div>';
+        document.getElementById('projectTimeline').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Пока пусто</p></div>';
     }
 }
 
@@ -449,7 +449,7 @@ async function loadDocuments() {
             .get();
 
         if (docsSnapshot.empty) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-file-invoice"></i><p>Документы еще не добавлены</p></div>';
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-file-invoice"></i><p>Пока пусто</p></div>';
             return;
         }
 
@@ -462,7 +462,7 @@ async function loadDocuments() {
 
     } catch (error) {
         console.error('Ошибка загрузки документов:', error);
-        document.getElementById('documentsContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Ошибка загрузки документов</p></div>';
+        document.getElementById('documentsContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Пока пусто</p></div>';
     }
 }
 
@@ -589,7 +589,7 @@ async function loadSpecifications() {
         const specifications = clientData.specifications || {};
 
         if (!specifications.materials && !specifications.lighting && !specifications.furniture) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-list-alt"></i><p>Спецификации еще не добавлены</p></div>';
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-list-alt"></i><p>Пока пусто</p></div>';
             return;
         }
 
@@ -614,7 +614,7 @@ async function loadSpecifications() {
 
     } catch (error) {
         console.error('Ошибка загрузки спецификаций:', error);
-        document.getElementById('specificationsContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Ошибка загрузки спецификаций</p></div>';
+        document.getElementById('specificationsContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Пока пусто</p></div>';
     }
 }
 
