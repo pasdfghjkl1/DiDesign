@@ -150,6 +150,16 @@
         .chat-send-btn:hover {
             transform: scale(1.1);
         }
+        
+        /* Улучшенный hover для кликабельных карточек */
+        .card[style*="cursor: pointer"] {
+            transition: all 0.3s ease;
+        }
+        
+        .card[style*="cursor: pointer"]:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -247,7 +257,7 @@
             </div>
 
             <div class="cards-grid">
-                <div class="card">
+                <div class="card" style="cursor: pointer;" onclick="showSection('overview'); document.querySelector('#progressBar').scrollIntoView({behavior: 'smooth', block: 'center'});">
                     <div class="card-header">
                         <div class="card-title">Прогресс</div>
                         <div class="card-icon">
@@ -261,7 +271,7 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card" style="cursor: pointer;" onclick="showSectionByLink(event, 'timeline')">
                     <div class="card-header">
                         <div class="card-title">Ближайший дедлайн</div>
                         <div class="card-icon">
@@ -272,7 +282,7 @@
                     <div class="card-label" id="deadlineLabel">Загрузка...</div>
                 </div>
 
-                <div class="card">
+                <div class="card" style="cursor: pointer;" onclick="showSectionByLink(event, 'files')">
                     <div class="card-header">
                         <div class="card-title">Всего файлов</div>
                         <div class="card-icon">
@@ -398,7 +408,12 @@
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
             document.getElementById(sectionName + '-section').classList.add('active');
-            event.currentTarget.classList.add('active');
+            
+            // Найти и активировать соответствующую ссылку в меню
+            const targetLink = document.querySelector(`a[onclick*="showSection('${sectionName}')"]`);
+            if (targetLink) {
+                targetLink.classList.add('active');
+            }
             
             // Сбрасываем badge при открытии чата
             if (sectionName === 'chat') {
@@ -409,6 +424,12 @@
             if (window.innerWidth <= 968) {
                 document.getElementById('sidebar').classList.remove('open');
             }
+        }
+        
+        // Функция для перехода из карточек
+        function showSectionByLink(event, sectionName) {
+            event.stopPropagation();
+            showSection(sectionName);
         }
 
         function toggleSidebar() {
