@@ -110,6 +110,83 @@ function updateStatistics() {
 
     // Количество работников
     document.getElementById('totalDesigners').textContent = allDesigners.length;
+
+    // === НОВЫЕ МЕТРИКИ ===
+
+    // Проекты в этом месяце
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const projectsThisMonth = allClients.filter(c => {
+        const startDate = c.projectInfo?.startDate;
+        if (!startDate) return false;
+        const date = new Date(startDate);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    }).length;
+    document.getElementById('projectsThisMonth').textContent = projectsThisMonth;
+
+    // Средний срок проекта
+    const completedWithDates = allClients.filter(c => 
+        c.projectInfo?.status === 'Завершён' && 
+        c.projectInfo?.startDate && 
+        c.projectInfo?.completedDate
+    );
+    if (completedWithDates.length > 0) {
+        const totalDays = completedWithDates.reduce((sum, c) => {
+            const start = new Date(c.projectInfo.startDate);
+            const end = new Date(c.projectInfo.completedDate);
+            const days = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+            return sum + days;
+        }, 0);
+        const avgDays = Math.round(totalDays / completedWithDates.length);
+        document.getElementById('avgDuration').textContent = `${avgDays} дней`;
+    } else {
+        document.getElementById('avgDuration').textContent = '-';
+    }
+
+    // Проектов на работника
+    if (allDesigners.length > 0) {
+        const avg = (allClients.length / allDesigners.length).toFixed(1);
+        document.getElementById('avgProjectsPerDesigner').textContent = avg;
+    } else {
+        document.getElementById('avgProjectsPerDesigner').textContent = '-';
+    }
+
+    // Просроченные проекты
+    const overdueProjects = allClients.filter(c => {
+        const deadline = c.projectInfo?.deadline;
+        if (!deadline || c.projectInfo?.status === 'Завершён') return false;
+        return new Date(deadline) < new Date();
+    }).length;
+    document.getElementById('overdueProjects').textContent = overdueProjects;
+
+    // === ФИНАНСОВЫЕ МЕТРИКИ ===
+
+    let totalRevenue = 0;
+    let receivedPayments = 0;
+    let pendingPayments = 0;
+
+    allClients.forEach(c => {
+        const finance = c.projectInfo?.finance || {};
+        const total = parseFloat(finance.totalCost) || 0;
+        const paid = parseFloat(finance.paidAmount) || 0;
+        
+        totalRevenue += total;
+        receivedPayments += paid;
+        pendingPayments += (total - paid);
+    });
+
+    document.getElementById('totalRevenue').textContent = formatMoney(totalRevenue);
+    document.getElementById('receivedPayments').textContent = formatMoney(receivedPayments);
+    document.getElementById('pendingPayments').textContent = formatMoney(pendingPayments);
+    
+    const avgCheck = allClients.length > 0 ? totalRevenue / allClients.length : 0;
+    document.getElementById('averageCheck').textContent = formatMoney(avgCheck);
+}
+
+// Форматирование денег
+function formatMoney(amount) {
+    return new Intl.NumberFormat('ru-RU').format(Math.round(amount)) + ' ₽';
 }
 
 // ============================================
@@ -221,6 +298,12 @@ async function editClient(clientId) {
     document.getElementById('projectProgress').value = client.projectInfo?.progress || 0;
     document.getElementById('projectStartDate').value = client.projectInfo?.startDate || '';
     document.getElementById('projectDeadline').value = client.projectInfo?.deadline || '';
+    
+    // Финансовые поля
+    const finance = client.projectInfo?.finance || {};
+    document.getElementById('projectTotalCost').value = finance.totalCost || '';
+    document.getElementById('projectPaidAmount').value = finance.paidAmount || '';
+    document.getElementById('projectPaymentStatus').value = finance.paymentStatus || 'Не оплачено';
     
     updateDesignerSelect();
     document.getElementById('assignedDesigner').value = client.assignedDesigner || '';
@@ -392,7 +475,13 @@ document.getElementById('clientForm')?.addEventListener('submit', async (e) => {
             status: document.getElementById('projectStatus').value,
             progress: parseInt(document.getElementById('projectProgress').value) || 0,
             startDate: document.getElementById('projectStartDate').value,
-            deadline: document.getElementById('projectDeadline').value
+            deadline: document.getElementById('projectDeadline').value,
+            // Финансовая информация
+            finance: {
+                totalCost: parseFloat(document.getElementById('projectTotalCost').value) || 0,
+                paidAmount: parseFloat(document.getElementById('projectPaidAmount').value) || 0,
+                paymentStatus: document.getElementById('projectPaymentStatus').value
+            }
         },
         role: 'client',
         hasPassword: false,
@@ -524,6 +613,10 @@ function showAlert(type, message) {
     } else {
         alert('✅ ' + message);
     }
+}
+
+function openFinancialSettings() {
+    alert('💡 Настройки финансов будут доступны в следующей версии!\n\nЗдесь можно будет настроить:\n- Шаблоны цен\n- Налоги\n- Способы оплаты\n- Напоминания об оплате');
 }
 
 // ============================================

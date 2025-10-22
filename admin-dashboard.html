@@ -496,7 +496,7 @@
     <!-- Навигация -->
     <nav class="admin-navbar">
         <div class="admin-logo">
-            <i class="fas fa-shield-alt"></i> DI Admin v2
+            <i class="fas fa-shield-alt"></i> DI Admin
         </div>
         <div class="admin-user">
             <span id="adminName">Администратор</span>
@@ -534,6 +534,7 @@
 
         <!-- Вкладка: Обзор -->
         <div class="tab-content active" id="overview-tab">
+            <!-- Основная статистика -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon clients">
@@ -569,6 +570,109 @@
                     <div class="stat-info">
                         <h3 id="completedProjects">0</h3>
                         <p>Завершённых проектов</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Дополнительные метрики -->
+            <div class="stats-grid" style="margin-top: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #3498db;">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="projectsThisMonth">0</h3>
+                        <p>Проектов в этом месяце</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #9b59b6;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="avgDuration">-</h3>
+                        <p>Средний срок проекта</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #e67e22;">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="avgProjectsPerDesigner">-</h3>
+                        <p>Проектов на работника</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #e74c3c;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="overdueProjects">0</h3>
+                        <p>Просроченных проектов</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Финансовая панель -->
+            <div style="margin-top: 2rem; background: white; border-radius: 15px; box-shadow: var(--shadow); padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="font-family: 'Playfair Display', serif; color: var(--primary-color); margin: 0;">
+                        <i class="fas fa-ruble-sign"></i> Финансовая статистика
+                    </h2>
+                    <button class="btn btn-primary" onclick="openFinancialSettings()">
+                        <i class="fas fa-cog"></i> Настроить
+                    </button>
+                </div>
+
+                <!-- Финансовые карточки -->
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-left: 4px solid #27ae60;">
+                        <div class="stat-icon" style="background: #27ae60;">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalRevenue">0 ₽</h3>
+                            <p>Общая выручка</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #f39c12;">
+                        <div class="stat-icon" style="background: #f39c12;">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pendingPayments">0 ₽</h3>
+                            <p>Ожидается оплата</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #3498db;">
+                        <div class="stat-icon" style="background: #3498db;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="averageCheck">0 ₽</h3>
+                            <p>Средний чек</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #27ae60;">
+                        <div class="stat-icon" style="background: #27ae60;">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="receivedPayments">0 ₽</h3>
+                            <p>Получено</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- График по месяцам (заглушка) -->
+                <div style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 10px;">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-dark);">
+                        <i class="fas fa-chart-bar"></i> Выручка по месяцам
+                    </h3>
+                    <div style="color: var(--text-light); text-align: center; padding: 2rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        График будет доступен после добавления данных о финансах
                     </div>
                 </div>
             </div>
@@ -722,6 +826,34 @@
                 <div class="form-group">
                     <label class="form-label">Дедлайн</label>
                     <input type="date" class="form-control" id="projectDeadline">
+                </div>
+
+                <!-- Финансовая информация -->
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #e5e5e5;">
+                    <h3 style="margin-bottom: 1rem; color: var(--primary-color); font-size: 1.1rem;">
+                        <i class="fas fa-ruble-sign"></i> Финансы проекта
+                    </h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Общая стоимость проекта (₽)</label>
+                        <input type="number" class="form-control" id="projectTotalCost" 
+                               placeholder="450000" min="0" step="1000">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Оплачено (₽)</label>
+                        <input type="number" class="form-control" id="projectPaidAmount" 
+                               placeholder="300000" min="0" step="1000">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Статус оплаты</label>
+                        <select class="form-control" id="projectPaymentStatus">
+                            <option value="Не оплачено">Не оплачено</option>
+                            <option value="Частично">Частично оплачено</option>
+                            <option value="Оплачено">Полностью оплачено</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
