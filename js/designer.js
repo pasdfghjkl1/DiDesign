@@ -383,35 +383,65 @@ async function sendMessage() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
 
-    if (!text || !currentChatProject) return;
+    if (!text || !currentChatProject) {
+        console.log('⚠️ Нет текста или проекта для отправки');
+        return;
+    }
 
     try {
-        // Добавляем сообщение в Firestore
-        await firebaseDb.collection('messages').add({
+        console.log('📤 Отправка сообщения...', {
+            projectId: currentChatProject,
+            text: text.substring(0, 20) + '...'
+        });
+
+        // Создаём структуру сообщения
+        const messageData = {
             projectId: currentChatProject,
             senderId: currentUserId,
             senderRole: 'designer',
-            senderName: currentUser.personalInfo.name,
+            senderName: currentUser?.personalInfo?.name || 'Работник',
             text: text,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             isRead: false
-        });
+        };
 
-        // Обновляем информацию о последнем сообщении в проекте
-        await firebaseDb.collection('clients').doc(currentChatProject).update({
-            'chat.lastMessageText': text,
-            'chat.lastMessageAt': firebase.firestore.FieldValue.serverTimestamp(),
-            'chat.unreadByClient': firebase.firestore.FieldValue.increment(1)
-        });
+        // Отправляем в коллекцию messages
+        const messageRef = await firebaseDb.collection('messages').add(messageData);
+        console.log('✅ Сообщение добавлено в messages:', messageRef.id);
+
+        // Обновляем информацию о чате в документе клиента
+        await firebaseDb.collection('clients').doc(currentChatProject).set({
+            chat: {
+                lastMessageText: text,
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                unreadByClient: firebase.firestore.FieldValue.increment(1),
+                unreadByDesigner: 0
+            }
+        }, { merge: true });
+
+        console.log('✅ Чат обновлён в проекте');
 
         // Очищаем поле ввода
         input.value = '';
+        
+        // Прокручиваем вниз
+        const container = document.getElementById('chatMessages');
+        if (container) {
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 100);
+        }
 
-        console.log('✅ Сообщение отправлено');
+        console.log('✅ Сообщение успешно отправлено');
 
     } catch (error) {
         console.error('❌ Ошибка отправки сообщения:', error);
-        alert('Ошибка отправки сообщения');
+        console.error('Детали ошибки:', {
+            code: error.code,
+            message: error.message,
+            stack: error.stack
+        });
+        alert('❌ Ошибка отправки сообщения: ' + error.message);
     }
 }
 
