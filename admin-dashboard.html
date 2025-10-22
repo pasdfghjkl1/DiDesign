@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель - DI Studio</title>
+    <title>Админ-панель v2 - DI Studio</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/responsive-fixes.css">
     <style>
         :root {
             --primary-color: #2c5530;
@@ -95,9 +94,53 @@
             margin-bottom: 0.5rem;
         }
 
-        .admin-header p {
+        /* Табы */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e5e5e5;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
             color: var(--text-light);
-            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        /* Секции табов */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         /* Статистика */
@@ -130,8 +173,8 @@
         }
 
         .stat-icon.clients { background: var(--primary-color); }
+        .stat-icon.designers { background: var(--secondary-color); }
         .stat-icon.active { background: var(--success); }
-        .stat-icon.completed { background: var(--secondary-color); }
 
         .stat-info h3 {
             font-size: 2rem;
@@ -144,7 +187,7 @@
             font-size: 0.9rem;
         }
 
-        /* Действия */
+        /* Панель действий */
         .actions-bar {
             background: white;
             padding: 1.5rem;
@@ -202,8 +245,8 @@
             box-shadow: 0 5px 15px rgba(44, 85, 48, 0.3);
         }
 
-        /* Таблица клиентов */
-        .clients-table-container {
+        /* Таблицы */
+        .table-container {
             background: white;
             border-radius: 15px;
             box-shadow: var(--shadow);
@@ -221,16 +264,16 @@
             font-size: 1.5rem;
         }
 
-        .clients-table {
+        table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .clients-table thead {
+        thead {
             background: #f8f9fa;
         }
 
-        .clients-table th {
+        th {
             padding: 1rem;
             text-align: left;
             font-weight: 600;
@@ -238,16 +281,16 @@
             border-bottom: 2px solid #e5e5e5;
         }
 
-        .clients-table td {
+        td {
             padding: 1rem;
             border-bottom: 1px solid #f0f0f0;
         }
 
-        .clients-table tbody tr {
+        tbody tr {
             transition: background 0.2s ease;
         }
 
-        .clients-table tbody tr:hover {
+        tbody tr:hover {
             background: #f8f9fa;
         }
 
@@ -275,7 +318,6 @@
         }
 
         .progress-bar {
-            width: 100px;
             height: 8px;
             background: #e5e5e5;
             border-radius: 4px;
@@ -322,16 +364,6 @@
 
         .btn-delete:hover {
             background: #d32f2f;
-            color: white;
-        }
-
-        .btn-view {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .btn-view:hover {
-            background: #7b1fa2;
             color: white;
         }
 
@@ -415,11 +447,6 @@
             border-color: var(--primary-light);
         }
 
-        textarea.form-control {
-            min-height: 100px;
-            resize: vertical;
-        }
-
         .modal-footer {
             display: flex;
             gap: 1rem;
@@ -436,26 +463,13 @@
             background: #5a6268;
         }
 
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-light);
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Проекты для работников */
+        #designerProjects {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 1rem;
         }
 
         /* Адаптивность */
@@ -468,17 +482,11 @@
                 grid-template-columns: 1fr;
             }
 
-            .actions-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .clients-table {
+            table {
                 font-size: 0.85rem;
             }
 
-            .clients-table th,
-            .clients-table td {
+            th, td {
                 padding: 0.5rem;
             }
         }
@@ -488,7 +496,7 @@
     <!-- Навигация -->
     <nav class="admin-navbar">
         <div class="admin-logo">
-            <i class="fas fa-shield-alt"></i> DI Admin
+            <i class="fas fa-shield-alt"></i> DI Admin v2
         </div>
         <div class="admin-user">
             <span id="adminName">Администратор</span>
@@ -503,125 +511,149 @@
         <!-- Заголовок -->
         <div class="admin-header">
             <h1>Панель управления</h1>
-            <p>Управление клиентами и проектами</p>
+            <p>Управление клиентами и работниками</p>
         </div>
 
-        <!-- Статистика -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon clients">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="totalClients">0</h3>
-                    <p>Всего клиентов</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon active">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="activeProjects">0</h3>
-                    <p>Активных проектов</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon completed">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="completedProjects">0</h3>
-                    <p>Завершённых проектов</p>
-                </div>
-            </div>
-            <div class="stat-card" style="cursor: pointer;" onclick="toggleFinancials()">
-                <div class="stat-icon" style="background: #27ae60;">
-                    <i class="fas fa-ruble-sign"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="totalRevenue">0 ₽</h3>
-                    <p>Общая выручка</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Финансовая панель -->
-        <div class="financial-panel" id="financialPanel" style="display: none;">
-            <div class="clients-table-container" style="margin-bottom: 2rem;">
-                <div class="table-header">
-                    <h2><i class="fas fa-chart-line"></i> Финансовая информация</h2>
-                </div>
-                <div style="padding: 1.5rem;">
-                    <div class="financial-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                        <div class="financial-item">
-                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">Ожидаемые платежи</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #f39c12;"><span id="pendingPayments">0 ₽</span></div>
-                        </div>
-                        <div class="financial-item">
-                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">Получено</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #27ae60;"><span id="receivedPayments">0 ₽</span></div>
-                        </div>
-                        <div class="financial-item">
-                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">Просрочено</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #e74c3c;"><span id="overduePayments">0 ₽</span></div>
-                        </div>
-                        <div class="financial-item">
-                            <div style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">Средний чек</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);"><span id="averageCheck">0 ₽</span></div>
-                        </div>
-                    </div>
-                    
-                    <h3 style="margin-bottom: 1rem;">📊 Детализация по проектам</h3>
-                    <table class="clients-table">
-                        <thead>
-                            <tr>
-                                <th>Клиент</th>
-                                <th>Проект</th>
-                                <th>Стоимость</th>
-                                <th>Оплачено</th>
-                                <th>Остаток</th>
-                                <th>Статус оплаты</th>
-                            </tr>
-                        </thead>
-                        <tbody id="financialTableBody">
-                            <tr>
-                                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-light);">
-                                    Загрузка данных...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Панель действий -->
-        <div class="actions-bar">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Поиск по имени, телефону или проекту...">
-                <i class="fas fa-search"></i>
-            </div>
-            <button class="btn btn-primary" onclick="openAddClientModal()">
-                <i class="fas fa-plus"></i> Добавить клиента
+        <!-- Табы -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('overview')">
+                <i class="fas fa-chart-line"></i>
+                Обзор
+            </button>
+            <button class="tab-btn" onclick="showTab('clients')">
+                <i class="fas fa-users"></i>
+                Клиенты
+                <span class="tab-badge" id="clientsBadge">0</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('designers')">
+                <i class="fas fa-paint-brush"></i>
+                Работники
+                <span class="tab-badge" id="designersBadge">0</span>
             </button>
         </div>
 
-        <!-- Таблица клиентов -->
-        <div class="clients-table-container">
-            <div class="table-header">
-                <h2><i class="fas fa-list"></i> Список клиентов</h2>
-            </div>
-            <div id="tableContent">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Загрузка данных...</p>
+        <!-- Вкладка: Обзор -->
+        <div class="tab-content active" id="overview-tab">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon clients">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalClients">0</h3>
+                        <p>Всего клиентов</p>
+                    </div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-icon designers">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalDesigners">0</h3>
+                        <p>Работников</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon active">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="activeProjects">0</h3>
+                        <p>Активных проектов</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon completed" style="background: var(--secondary-color);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="completedProjects">0</h3>
+                        <p>Завершённых проектов</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка: Клиенты -->
+        <div class="tab-content" id="clients-tab">
+            <div class="actions-bar">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Поиск по имени, телефону или проекту...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <button class="btn btn-primary" onclick="openAddClientModal()">
+                    <i class="fas fa-plus"></i> Добавить клиента
+                </button>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2><i class="fas fa-list"></i> Список клиентов</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Имя</th>
+                            <th>Телефон</th>
+                            <th>Email</th>
+                            <th>Проект</th>
+                            <th>Статус</th>
+                            <th>Прогресс</th>
+                            <th>Работник</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem;">
+                                Загрузка данных...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вкладка: Работники -->
+        <div class="tab-content" id="designers-tab">
+            <div class="actions-bar">
+                <div style="flex: 1;">
+                    <h3 style="margin: 0; color: var(--primary-color);">Работники студии</h3>
+                    <p style="margin: 0.5rem 0 0 0; color: var(--text-light);">Управление дизайнерами и менеджерами</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAddDesignerModal()">
+                    <i class="fas fa-plus"></i> Добавить работника
+                </button>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2><i class="fas fa-paint-brush"></i> Список работников</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Имя</th>
+                            <th>Телефон</th>
+                            <th>Email</th>
+                            <th>Проектов</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="designersTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                Загрузка данных...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно: Добавить/Редактировать клиента -->
+    <!-- Модальное окно: Клиент -->
     <div class="modal" id="clientModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -634,30 +666,37 @@
                 <input type="hidden" id="clientId">
                 
                 <div class="form-group">
-                    <label class="form-label">Имя клиента</label>
+                    <label class="form-label">Имя клиента *</label>
                     <input type="text" class="form-control" id="clientName" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Телефон</label>
+                    <label class="form-label">Телефон *</label>
                     <input type="tel" class="form-control" id="clientPhone" 
                            placeholder="+7 (999) 123-45-67" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email</label>
+                    <label class="form-label">Email *</label>
                     <input type="email" class="form-control" id="clientEmail" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Название проекта</label>
+                    <label class="form-label">Название проекта *</label>
                     <input type="text" class="form-control" id="projectTitle" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Площадь</label>
                     <input type="text" class="form-control" id="projectArea" 
-                           placeholder="50 м²" required>
+                           placeholder="50 м²">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Назначить работника</label>
+                    <select class="form-control" id="assignedDesigner">
+                        <option value="">Не назначен</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -672,21 +711,68 @@
                 <div class="form-group">
                     <label class="form-label">Прогресс (%)</label>
                     <input type="number" class="form-control" id="projectProgress" 
-                           min="0" max="100" value="0" required>
+                           min="0" max="100" value="0">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Дата начала</label>
-                    <input type="date" class="form-control" id="projectStartDate" required>
+                    <input type="date" class="form-control" id="projectStartDate">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Дедлайн</label>
-                    <input type="date" class="form-control" id="projectDeadline" required>
+                    <input type="date" class="form-control" id="projectDeadline">
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Работник -->
+    <div class="modal" id="designerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="designerModalTitle">Добавить работника</h2>
+                <button class="close-modal" onclick="closeDesignerModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="designerForm">
+                <input type="hidden" id="designerId">
+                
+                <div class="form-group">
+                    <label class="form-label">Имя работника *</label>
+                    <input type="text" class="form-control" id="designerName" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Телефон *</label>
+                    <input type="tel" class="form-control" id="designerPhone" 
+                           placeholder="+7 (999) 123-45-67" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="designerEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Назначить на проекты</label>
+                    <div id="designerProjects">
+                        <!-- Чекбоксы с проектами -->
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeDesignerModal()">
                         Отмена
                     </button>
                     <button type="submit" class="btn btn-primary">
@@ -702,90 +788,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <!-- Конфигурация Firebase -->
     <script src="js/firebase-config.js"></script>
-
-    <!-- Логика админ-панели -->
     <script src="js/admin.js"></script>
-    
-    <script>
-        // Тоггл финансовой панели
-        function toggleFinancials() {
-            const panel = document.getElementById('financialPanel');
-            if (panel.style.display === 'none') {
-                panel.style.display = 'block';
-                loadFinancialData();
-            } else {
-                panel.style.display = 'none';
-            }
-        }
-        
-        // Загрузка финансовых данных
-        function loadFinancialData() {
-            // TODO: Загрузка из Firebase
-            // Пока тестовые данные
-            const testData = {
-                totalRevenue: 2450000,
-                pending: 850000,
-                received: 1600000,
-                overdue: 150000,
-                projects: [
-                    {
-                        client: 'Иванов Иван',
-                        project: 'Дизайн квартиры 70м²',
-                        total: 450000,
-                        paid: 300000,
-                        status: 'Частично'
-                    },
-                    {
-                        client: 'Петров Пётр',
-                        project: 'Офис 120м²',
-                        total: 800000,
-                        paid: 800000,
-                        status: 'Оплачено'
-                    },
-                    {
-                        client: 'Сидорова Анна',
-                        project: 'Загородный дом 200м²',
-                        total: 1200000,
-                        paid: 500000,
-                        status: 'Частично'
-                    }
-                ]
-            };
-            
-            // Обновляем статистику
-            document.getElementById('totalRevenue').textContent = formatMoney(testData.totalRevenue);
-            document.getElementById('pendingPayments').textContent = formatMoney(testData.pending);
-            document.getElementById('receivedPayments').textContent = formatMoney(testData.received);
-            document.getElementById('overduePayments').textContent = formatMoney(testData.overdue);
-            document.getElementById('averageCheck').textContent = formatMoney(testData.totalRevenue / testData.projects.length);
-            
-            // Заполняем таблицу
-            const tbody = document.getElementById('financialTableBody');
-            tbody.innerHTML = '';
-            
-            testData.projects.forEach(proj => {
-                const remaining = proj.total - proj.paid;
-                const statusClass = proj.status === 'Оплачено' ? 'active' : 'pending';
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${proj.client}</td>
-                        <td>${proj.project}</td>
-                        <td><strong>${formatMoney(proj.total)}</strong></td>
-                        <td style="color: #27ae60;">${formatMoney(proj.paid)}</td>
-                        <td style="color: ${remaining > 0 ? '#e74c3c' : '#27ae60'};">${formatMoney(remaining)}</td>
-                        <td><span class="status-badge ${statusClass}">${proj.status}</span></td>
-                    </tr>
-                `;
-            });
-        }
-        
-        // Форматирование денег
-        function formatMoney(amount) {
-            return new Intl.NumberFormat('ru-RU').format(amount) + ' ₽';
-        }
-    </script>
 </body>
 </html>
