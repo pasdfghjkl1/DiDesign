@@ -616,7 +616,127 @@ function showAlert(type, message) {
 }
 
 function openFinancialSettings() {
-    alert('💡 Настройки финансов будут доступны в следующей версии!\n\nЗдесь можно будет настроить:\n- Шаблоны цен\n- Налоги\n- Способы оплаты\n- Напоминания об оплате');
+    // Загружаем сохранённые настройки из localStorage
+    const settings = JSON.parse(localStorage.getItem('financialSettings') || '{}');
+    
+    // Заполняем форму
+    document.getElementById('price_apt_small').value = settings.price_apt_small || '';
+    document.getElementById('price_apt_medium').value = settings.price_apt_medium || '';
+    document.getElementById('price_apt_large').value = settings.price_apt_large || '';
+    document.getElementById('price_house').value = settings.price_house || '';
+    document.getElementById('price_office').value = settings.price_office || '';
+    document.getElementById('price_restaurant').value = settings.price_restaurant || '';
+    
+    document.getElementById('payment_cash').checked = settings.payment_cash !== false;
+    document.getElementById('payment_bank').checked = settings.payment_bank !== false;
+    document.getElementById('payment_card').checked = settings.payment_card !== false;
+    document.getElementById('payment_installment').checked = settings.payment_installment || false;
+    document.getElementById('payment_crypto').checked = settings.payment_crypto || false;
+    
+    document.getElementById('prepayment_percent').value = settings.prepayment_percent || 30;
+    document.getElementById('reminder_days').value = settings.reminder_days || 7;
+    document.getElementById('auto_reminders').checked = settings.auto_reminders !== false;
+    
+    document.getElementById('currency').value = settings.currency || 'RUB';
+    document.getElementById('vat_rate').value = settings.vat_rate || 20;
+    document.getElementById('include_vat').checked = settings.include_vat || false;
+    
+    document.getElementById('financialSettingsModal').classList.add('active');
+}
+
+function closeFinancialSettings() {
+    document.getElementById('financialSettingsModal').classList.remove('active');
+}
+
+// Сохранение финансовых настроек
+document.getElementById('financialSettingsForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const settings = {
+        // Шаблоны цен
+        price_apt_small: document.getElementById('price_apt_small').value,
+        price_apt_medium: document.getElementById('price_apt_medium').value,
+        price_apt_large: document.getElementById('price_apt_large').value,
+        price_house: document.getElementById('price_house').value,
+        price_office: document.getElementById('price_office').value,
+        price_restaurant: document.getElementById('price_restaurant').value,
+        
+        // Способы оплаты
+        payment_cash: document.getElementById('payment_cash').checked,
+        payment_bank: document.getElementById('payment_bank').checked,
+        payment_card: document.getElementById('payment_card').checked,
+        payment_installment: document.getElementById('payment_installment').checked,
+        payment_crypto: document.getElementById('payment_crypto').checked,
+        
+        // Настройки платежей
+        prepayment_percent: document.getElementById('prepayment_percent').value,
+        reminder_days: document.getElementById('reminder_days').value,
+        auto_reminders: document.getElementById('auto_reminders').checked,
+        
+        // Валюта и налоги
+        currency: document.getElementById('currency').value,
+        vat_rate: document.getElementById('vat_rate').value,
+        include_vat: document.getElementById('include_vat').checked
+    };
+    
+    // Сохраняем в localStorage
+    localStorage.setItem('financialSettings', JSON.stringify(settings));
+    
+    showAlert('success', 'Финансовые настройки успешно сохранены! ✅');
+    closeFinancialSettings();
+});
+
+// Получение настроек для использования в других местах
+function getFinancialSettings() {
+    return JSON.parse(localStorage.getItem('financialSettings') || '{}');
+}
+
+// Подсказка цены на основе площади
+function suggestPrice() {
+    const areaInput = document.getElementById('projectArea').value;
+    
+    if (!areaInput) {
+        alert('⚠️ Сначала укажите площадь проекта!');
+        document.getElementById('projectArea').focus();
+        return;
+    }
+    
+    // Извлекаем число из строки типа "50 м²"
+    const area = parseFloat(areaInput.replace(/[^\d.]/g, ''));
+    
+    if (!area || area <= 0) {
+        alert('⚠️ Укажите корректную площадь проекта!');
+        return;
+    }
+    
+    const settings = getFinancialSettings();
+    let suggestedPrice = 0;
+    let priceType = '';
+    
+    // Определяем цену по площади
+    if (area < 50) {
+        suggestedPrice = settings.price_apt_small || 300000;
+        priceType = 'квартира до 50 м²';
+    } else if (area < 100) {
+        suggestedPrice = settings.price_apt_medium || 500000;
+        priceType = 'квартира 50-100 м²';
+    } else if (area < 200) {
+        suggestedPrice = settings.price_apt_large || 800000;
+        priceType = 'квартира 100+ м²';
+    } else {
+        suggestedPrice = settings.price_house || 1200000;
+        priceType = 'загородный дом';
+    }
+    
+    // Заполняем поле
+    document.getElementById('projectTotalCost').value = suggestedPrice;
+    
+    // Рассчитываем предоплату
+    const prepaymentPercent = parseInt(settings.prepayment_percent) || 30;
+    const prepayment = Math.round(suggestedPrice * prepaymentPercent / 100);
+    document.getElementById('projectPaidAmount').value = prepayment;
+    
+    showAlert('success', `💡 Предложенная цена для "${priceType}": ${formatMoney(suggestedPrice)}\nПредоплата ${prepaymentPercent}%: ${formatMoney(prepayment)}`);
 }
 
 // ============================================
