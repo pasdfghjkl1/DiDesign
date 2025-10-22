@@ -25,7 +25,7 @@ function showProjectDetails(projectId) {
 
     const modalHTML = `
         <div class="modal active" id="projectDetailsModal" onclick="if(event.target === this) closeProjectDetails()">
-            <div class="modal-content" style="max-width: 900px; width: 95%;">
+            <div class="modal-content" style="max-width: 1200px; width: 90%;">
                 <div class="modal-header">
                     <h2><i class="fas fa-info-circle"></i> Детали проекта</h2>
                     <button class="close-modal" onclick="closeProjectDetails()">
@@ -266,7 +266,7 @@ async function addNewStage(projectId) {
 
         alert('✅ Этап добавлен!');
         closeStages();
-        await loadProjects();
+        await loadAssignedProjects();
         showStages(projectId);
 
     } catch (error) {
@@ -300,7 +300,7 @@ async function toggleStage(projectId, index) {
             'projectInfo.progress': progress
         });
 
-        await loadProjects();
+        await loadAssignedProjects();
         closeStages();
         showStages(projectId);
 
@@ -325,7 +325,7 @@ async function deleteStage(projectId, index) {
 
         alert('✅ Этап удалён!');
         closeStages();
-        await loadProjects();
+        await loadAssignedProjects();
         showStages(projectId);
 
     } catch (error) {
