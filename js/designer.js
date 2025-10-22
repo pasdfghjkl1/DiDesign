@@ -1,0 +1,499 @@
+// ============================================
+// КАБИНЕТ РАБОТНИКА (DESIGNER) - DI Studio
+// ============================================
+
+let currentUser = null;
+let currentUserId = null;
+let assignedProjects = [];
+let currentChatProject = null;
+let messagesListener = null;
+
+// ============================================
+// ПРОВЕРКА АВТОРИЗАЦИИ И ПРАВ
+// ============================================
+
+firebaseAuth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        // Не авторизован - редирект на страницу входа
+        window.location.href = 'client-login.html';
+        return;
+    }
+
+    try {
+        // Получаем ID пользователя (номер телефона без +)
+        const userId = user.email.split('@')[0];
+        currentUserId = userId;
+
+        // Получаем данные пользователя из Firestore
+        const userDoc = await firebaseDb.collection('clients').doc(userId).get();
+        
+        if (!userDoc.exists) {
+            console.error('❌ Пользователь не найден в базе');
+            alert('Ошибка: данные пользователя не найдены');
+            await firebaseAuth.signOut();
+            window.location.href = 'client-login.html';
+            return;
+        }
+
+        const userData = userDoc.data();
+        currentUser = userData;
+
+        // ПРОВЕРКА РОЛИ
+        if (userData.role !== 'designer') {
+            console.log('⚠️ Пользователь не является работником');
+            
+            // Редирект в зависимости от роли
+            if (userData.isAdmin || userData.role === 'admin') {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'client-dashboard.html';
+            }
+            return;
+        }
+
+        console.log('✅ Работник авторизован:', userData.personalInfo.name);
+
+        // Инициализация интерфейса
+        initializeDesignerDashboard(userData);
+
+    } catch (error) {
+        console.error('❌ Ошибка при проверке прав доступа:', error);
+        alert('Ошибка загрузки данных. Попробуйте войти снова.');
+        await firebaseAuth.signOut();
+        window.location.href = 'client-login.html';
+    }
+});
+
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ КАБИНЕТА
+// ============================================
+
+async function initializeDesignerDashboard(userData) {
+    try {
+        // Обновляем UI с данными работника
+        document.getElementById('userName').textContent = userData.personalInfo.name;
+        const firstName = userData.personalInfo.name.split(' ')[0];
+        document.getElementById('userAvatar').textContent = firstName[0].toUpperCase();
+
+        // Загружаем назначенные проекты
+        await loadAssignedProjects();
+
+        // Скрываем загрузочный экран
+        document.getElementById('authCheckLoader').style.display = 'none';
+
+        console.log('✅ Кабинет работника загружен');
+
+    } catch (error) {
+        console.error('❌ Ошибка инициализации:', error);
+        document.getElementById('authCheckLoader').innerHTML = `
+            <div style="text-align: center;">
+                <p style="color: #dc3545; font-weight: 600;">Ошибка загрузки</p>
+                <p style="color: #666;">Попробуйте обновить страницу</p>
+                <button onclick="location.reload()" style="margin-top: 1rem; padding: 10px 20px; background: #2c5530; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    Обновить
+                </button>
+            </div>
+        `;
+    }
+}
+
+// ============================================
+// ЗАГРУЗКА НАЗНАЧЕННЫХ ПРОЕКТОВ
+// ============================================
+
+async function loadAssignedProjects() {
+    try {
+        console.log('🔄 Загрузка проектов...');
+
+        // Получаем все проекты, где этот работник назначен
+        const projectsSnapshot = await firebaseDb.collection('clients')
+            .where('assignedDesigner', '==', currentUserId)
+            .get();
+
+        if (projectsSnapshot.empty) {
+            console.log('⚠️ Назначенных проектов не найдено');
+            displayNoProjects();
+            return;
+        }
+
+        assignedProjects = [];
+        projectsSnapshot.forEach(doc => {
+            assignedProjects.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        console.log(`✅ Загружено проектов: ${assignedProjects.length}`);
+
+        // Отображаем проекты
+        displayProjects(assignedProjects);
+
+        // Обновляем badge
+        document.getElementById('projectsBadge').textContent = assignedProjects.length;
+
+        // Загружаем список чатов
+        loadChatList();
+
+    } catch (error) {
+        console.error('❌ Ошибка загрузки проектов:', error);
+        document.getElementById('projectsGrid').innerHTML = `
+            <div style="text-align: center; padding: 3rem; color: #dc3545;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <p>Ошибка загрузки проектов</p>
+            </div>
+        `;
+    }
+}
+
+// ============================================
+// ОТОБРАЖЕНИЕ ПРОЕКТОВ
+// ============================================
+
+function displayProjects(projects) {
+    const grid = document.getElementById('projectsGrid');
+    
+    if (projects.length === 0) {
+        displayNoProjects();
+        return;
+    }
+
+    grid.innerHTML = projects.map(project => {
+        const info = project.projectInfo || {};
+        const personal = project.personalInfo || {};
+        const progress = info.progress || 0;
+        const status = info.status || 'В работе';
+        
+        // Определяем срочность
+        const deadline = info.deadline ? new Date(info.deadline) : null;
+        const isUrgent = deadline && (deadline - new Date()) < 7 * 24 * 60 * 60 * 1000;
+
+        return `
+            <div class="project-card ${isUrgent ? 'urgent' : ''}" onclick="openChat('${project.id}')">
+                <div class="project-header">
+                    <div>
+                        <div class="project-title">${info.title || 'Без названия'}</div>
+                        <div class="project-client">
+                            <i class="fas fa-user"></i> ${personal.name || 'Клиент'}
+                        </div>
+                    </div>
+                    <span class="project-status ${status === 'Завершён' ? 'status-completed' : 'status-active'}">
+                        ${status}
+                    </span>
+                </div>
+
+                <div class="project-info">
+                    <div class="info-item">
+                        <i class="fas fa-ruler-combined"></i>
+                        ${info.area || 'Не указано'}
+                    </div>
+                    ${deadline ? `
+                        <div class="info-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            ${formatDate(deadline)}
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="project-progress">
+                    <div class="progress-text">
+                        <span>Прогресс</span>
+                        <span><strong>${progress}%</strong></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+
+                <div class="project-actions">
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); openChat('${project.id}')">
+                        <i class="fas fa-comments"></i> Открыть чат
+                    </button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); showProjectDetails('${project.id}')">
+                        <i class="fas fa-info-circle"></i> Детали
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function displayNoProjects() {
+    const grid = document.getElementById('projectsGrid');
+    grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-light);">
+            <i class="fas fa-folder-open" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+            <h3 style="margin-bottom: 0.5rem;">Нет назначенных проектов</h3>
+            <p>Администратор назначит вам проекты для работы</p>
+        </div>
+    `;
+}
+
+// ============================================
+// СИСТЕМА ЧАТА
+// ============================================
+
+function loadChatList() {
+    const sidebar = document.getElementById('chatSidebar');
+    
+    if (assignedProjects.length === 0) {
+        sidebar.innerHTML = `
+            <div style="padding: 2rem; text-align: center; color: var(--text-light);">
+                <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Нет активных чатов</p>
+            </div>
+        `;
+        return;
+    }
+
+    sidebar.innerHTML = assignedProjects.map(project => {
+        const personal = project.personalInfo || {};
+        const chat = project.chat || {};
+        const unread = chat.unreadByDesigner || 0;
+
+        return `
+            <div class="chat-list-item ${unread > 0 ? 'unread' : ''}" onclick="openChat('${project.id}')">
+                <div class="chat-item-header">
+                    <span class="chat-item-name">${personal.name || 'Клиент'}</span>
+                    <span class="chat-item-time">${chat.lastMessageAt ? formatTime(chat.lastMessageAt.toDate()) : ''}</span>
+                </div>
+                <div class="chat-item-preview">
+                    ${chat.lastMessageText || 'Нет сообщений'}
+                </div>
+                ${unread > 0 ? `<div style="color: var(--success); font-size: 0.75rem; margin-top: 0.25rem;"><strong>${unread} новых</strong></div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+async function openChat(projectId) {
+    try {
+        // Переключаемся на таб чата
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('chat-content').classList.add('active');
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+
+        // Находим проект
+        const project = assignedProjects.find(p => p.id === projectId);
+        if (!project) {
+            console.error('Проект не найден');
+            return;
+        }
+
+        currentChatProject = projectId;
+
+        // Обновляем заголовок
+        document.getElementById('chatClientName').textContent = project.personalInfo.name || 'Клиент';
+
+        // Включаем поле ввода
+        document.getElementById('chatInput').disabled = false;
+        document.querySelector('.chat-send-btn').disabled = false;
+
+        // Подсвечиваем активный чат
+        document.querySelectorAll('.chat-list-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        event.target.closest('.chat-list-item')?.classList.add('active');
+
+        // Загружаем сообщения
+        await loadMessages(projectId);
+
+        // Отмечаем сообщения как прочитанные
+        await markMessagesAsRead(projectId);
+
+    } catch (error) {
+        console.error('Ошибка открытия чата:', error);
+    }
+}
+
+async function loadMessages(projectId) {
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Загрузка сообщений...</p></div>';
+
+    try {
+        // Отписываемся от предыдущего слушателя
+        if (messagesListener) {
+            messagesListener();
+        }
+
+        // Слушаем сообщения в реальном времени
+        messagesListener = firebaseDb.collection('messages')
+            .where('projectId', '==', projectId)
+            .orderBy('timestamp', 'asc')
+            .onSnapshot(snapshot => {
+                if (snapshot.empty) {
+                    messagesContainer.innerHTML = `
+                        <div style="text-align: center; color: var(--text-light); padding: 3rem;">
+                            <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p>Начните переписку с клиентом</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const messages = [];
+                snapshot.forEach(doc => {
+                    messages.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                displayMessages(messages);
+            });
+
+    } catch (error) {
+        console.error('Ошибка загрузки сообщений:', error);
+        messagesContainer.innerHTML = `
+            <div style="text-align: center; color: #dc3545; padding: 3rem;">
+                <p>Ошибка загрузки сообщений</p>
+            </div>
+        `;
+    }
+}
+
+function displayMessages(messages) {
+    const container = document.getElementById('chatMessages');
+    
+    container.innerHTML = messages.map(msg => {
+        const isOutgoing = msg.senderRole === 'designer';
+        const time = msg.timestamp ? formatTime(msg.timestamp.toDate()) : '';
+
+        return `
+            <div class="message ${isOutgoing ? 'outgoing' : ''}">
+                <div class="message-avatar">
+                    ${isOutgoing ? 'D' : 'C'}
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        ${msg.text}
+                    </div>
+                    <div class="message-time">${time}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Скролл вниз
+    container.scrollTop = container.scrollHeight;
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+
+    if (!text || !currentChatProject) return;
+
+    try {
+        // Добавляем сообщение в Firestore
+        await firebaseDb.collection('messages').add({
+            projectId: currentChatProject,
+            senderId: currentUserId,
+            senderRole: 'designer',
+            senderName: currentUser.personalInfo.name,
+            text: text,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            isRead: false
+        });
+
+        // Обновляем информацию о последнем сообщении в проекте
+        await firebaseDb.collection('clients').doc(currentChatProject).update({
+            'chat.lastMessageText': text,
+            'chat.lastMessageAt': firebase.firestore.FieldValue.serverTimestamp(),
+            'chat.unreadByClient': firebase.firestore.FieldValue.increment(1)
+        });
+
+        // Очищаем поле ввода
+        input.value = '';
+
+        console.log('✅ Сообщение отправлено');
+
+    } catch (error) {
+        console.error('❌ Ошибка отправки сообщения:', error);
+        alert('Ошибка отправки сообщения');
+    }
+}
+
+async function markMessagesAsRead(projectId) {
+    try {
+        // Получаем непрочитанные сообщения от клиента
+        const unreadSnapshot = await firebaseDb.collection('messages')
+            .where('projectId', '==', projectId)
+            .where('senderRole', '==', 'client')
+            .where('isRead', '==', false)
+            .get();
+
+        // Отмечаем как прочитанные
+        const batch = firebaseDb.batch();
+        unreadSnapshot.forEach(doc => {
+            batch.update(doc.ref, { isRead: true });
+        });
+        await batch.commit();
+
+        // Обнуляем счётчик непрочитанных
+        await firebaseDb.collection('clients').doc(projectId).update({
+            'chat.unreadByDesigner': 0
+        });
+
+        // Обновляем badge
+        updateChatBadge();
+
+    } catch (error) {
+        console.error('Ошибка отметки сообщений:', error);
+    }
+}
+
+function updateChatBadge() {
+    const totalUnread = assignedProjects.reduce((sum, project) => {
+        return sum + (project.chat?.unreadByDesigner || 0);
+    }, 0);
+
+    const badge = document.getElementById('chatBadge');
+    if (totalUnread > 0) {
+        badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+        badge.style.display = 'inline-block';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// ============================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ============================================
+
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long'
+    });
+}
+
+function formatTime(date) {
+    return new Date(date).toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function showProjectDetails(projectId) {
+    const project = assignedProjects.find(p => p.id === projectId);
+    if (!project) return;
+
+    alert('Детальная информация о проекте:\n\n' + 
+          'Эта функция будет реализована в следующей версии');
+}
+
+// Enter для отправки сообщений
+document.addEventListener('DOMContentLoaded', () => {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
+});
+
+console.log('✅ designer.js загружен');

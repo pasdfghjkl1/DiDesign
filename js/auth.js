@@ -114,13 +114,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Создаем пользователя в Firebase Auth
             const userCredential = await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
             
-            // Проверяем, является ли пользователь администратором
+            // Проверяем роль пользователя
             const clientDoc = await window.firebaseDb.collection('clients').doc(currentPhone).get();
             const clientData = clientDoc.data();
+            const role = clientData?.role || (clientData?.isAdmin ? 'admin' : 'client');
             const isAdmin = clientData?.isAdmin || false;
             
             // Отладка
-            console.log('📋 Данные клиента:', clientData);
+            console.log('📋 Данные пользователя:', clientData);
+            console.log('👤 Роль:', role);
             console.log('🔑 isAdmin:', isAdmin);
             console.log('📞 Телефон:', currentPhone);
             
@@ -135,12 +137,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Перенаправляем в соответствующую панель через 2 секунды
             setTimeout(() => {
-                console.log('🚀 Перенаправление... isAdmin =', isAdmin);
-                if (isAdmin === true) {
+                console.log('🚀 Перенаправление... role =', role);
+                if (isAdmin === true || role === 'admin') {
                     console.log('➡️ Переход в админ-панель');
                     window.location.href = 'admin-dashboard.html';
+                } else if (role === 'designer') {
+                    console.log('➡️ Переход в кабинет работника');
+                    window.location.href = 'designer-dashboard.html';
                 } else {
-                    console.log('➡️ Переход в личный кабинет');
+                    console.log('➡️ Переход в личный кабинет клиента');
                     window.location.href = 'client-dashboard.html';
                 }
             }, 2000);
@@ -180,13 +185,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Вход через Firebase Auth
             const userCredential = await window.firebaseAuth.signInWithEmailAndPassword(email, password);
             
-            // Проверяем, является ли пользователь администратором
+            // Проверяем роль пользователя
             const clientDoc = await window.firebaseDb.collection('clients').doc(currentPhone).get();
             const clientData = clientDoc.data();
+            const role = clientData?.role || (clientData?.isAdmin ? 'admin' : 'client');
             const isAdmin = clientData?.isAdmin || false;
             
             // Отладка
-            console.log('📋 Данные клиента при входе:', clientData);
+            console.log('📋 Данные пользователя при входе:', clientData);
+            console.log('👤 Роль при входе:', role);
             console.log('🔑 isAdmin при входе:', isAdmin);
             console.log('📞 Телефон при входе:', currentPhone);
             
@@ -199,12 +206,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Перенаправляем в соответствующую панель
             setTimeout(() => {
-                console.log('🚀 Перенаправление при входе... isAdmin =', isAdmin);
-                if (isAdmin === true) {
+                console.log('🚀 Перенаправление при входе... role =', role);
+                if (isAdmin === true || role === 'admin') {
                     console.log('➡️ Переход в админ-панель (вход)');
                     window.location.href = 'admin-dashboard.html';
+                } else if (role === 'designer') {
+                    console.log('➡️ Переход в кабинет работника (вход)');
+                    window.location.href = 'designer-dashboard.html';
                 } else {
-                    console.log('➡️ Переход в личный кабинет (вход)');
+                    console.log('➡️ Переход в личный кабинет клиента (вход)');
                     window.location.href = 'client-dashboard.html';
                 }
             }, 1500);
@@ -332,10 +342,14 @@ if (window.firebaseAuth) {
                 const clientDoc = await window.firebaseDb.collection('clients').doc(phone).get();
                 
                 if (clientDoc.exists) {
-                    const isAdmin = clientDoc.data()?.isAdmin || false;
+                    const clientData = clientDoc.data();
+                    const role = clientData?.role || (clientData?.isAdmin ? 'admin' : 'client');
+                    const isAdmin = clientData?.isAdmin || false;
                     
-                    if (isAdmin === true) {
+                    if (isAdmin === true || role === 'admin') {
                         window.location.href = 'admin-dashboard.html';
+                    } else if (role === 'designer') {
+                        window.location.href = 'designer-dashboard.html';
                     } else {
                         window.location.href = 'client-dashboard.html';
                     }
