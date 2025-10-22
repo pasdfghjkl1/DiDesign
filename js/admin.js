@@ -1,458 +1,543 @@
 // ============================================
-// Логика админ-панели
+// АДМИН-ПАНЕЛЬ С УПРАВЛЕНИЕМ РАБОТНИКАМИ
 // ============================================
 
-// Проверка авторизации администратора
-document.addEventListener('DOMContentLoaded', async function() {
-    // Проверяем, авторизован ли пользователь
-    window.firebaseAuth.onAuthStateChanged(async (user) => {
-        if (!user) {
-            // Пользователь не авторизован - перенаправляем на страницу входа
+let allClients = [];
+let allDesigners = [];
+let currentEditingClient = null;
+let currentEditingDesigner = null;
+
+// ============================================
+// ПРОВЕРКА АВТОРИЗАЦИИ
+// ============================================
+
+firebaseAuth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        window.location.href = 'client-login.html';
+        return;
+    }
+
+    try {
+        const userId = user.email.split('@')[0];
+        const userDoc = await firebaseDb.collection('clients').doc(userId).get();
+        
+        if (!userDoc.exists) {
+            console.error('Пользователь не найден');
+            await firebaseAuth.signOut();
             window.location.href = 'client-login.html';
             return;
         }
 
-        // Получаем номер телефона из email
-        const phone = user.email.split('@')[0];
-        
-        // Проверяем, является ли пользователь администратором
-        try {
-            const clientDoc = await window.firebaseDb.collection('clients').doc(phone).get();
-            
-            if (!clientDoc.exists || !clientDoc.data().isAdmin) {
-                // Это не администратор - перенаправляем в обычный кабинет
-                alert('У вас нет прав администратора');
-                window.location.href = 'client-dashboard.html';
-                return;
-            }
+        const userData = userDoc.data();
+        const isAdmin = userData.isAdmin || userData.role === 'admin';
 
-            // Загружаем данные
-            loadClients();
-        } catch (error) {
-            console.error('Ошибка проверки прав:', error);
-            alert('Ошибка проверки прав доступа');
-            window.location.href = 'client-login.html';
+        if (!isAdmin) {
+            console.log('Нет прав администратора');
+            if (userData.role === 'designer') {
+                window.location.href = 'designer-dashboard.html';
+            } else {
+                window.location.href = 'client-dashboard.html';
+            }
+            return;
         }
-    });
+
+        // Инициализация админ-панели
+        document.getElementById('adminName').textContent = userData.personalInfo.name;
+        await loadAllData();
+
+    } catch (error) {
+        console.error('Ошибка авторизации:', error);
+        alert('Ошибка загрузки данных');
+        await firebaseAuth.signOut();
+        window.location.href = 'client-login.html';
+    }
 });
 
-// Глобальная переменная для хранения всех клиентов
-let allClients = [];
+// ============================================
+// ЗАГРУЗКА ВСЕХ ДАННЫХ
+// ============================================
 
-// ============================================
-// Загрузка списка клиентов
-// ============================================
-async function loadClients() {
+async function loadAllData() {
     try {
-        // Временно загружаем ВСЕХ клиентов для отладки
-        const clientsSnapshot = await window.firebaseDb.collection('clients').get();
+        // Загружаем всех пользователей
+        const snapshot = await firebaseDb.collection('clients').get();
         
         allClients = [];
-        clientsSnapshot.forEach(doc => {
-            const data = doc.data();
-            // Фильтруем администраторов на клиенте
-            if (!data.isAdmin) {
-                allClients.push({
-                    id: doc.id,
-                    ...data
-                });
+        allDesigners = [];
+        
+        snapshot.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            
+            if (data.role === 'designer') {
+                allDesigners.push(data);
+            } else if (!data.isAdmin && data.role !== 'admin') {
+                allClients.push(data);
             }
         });
 
-        console.log('✅ Загружено клиентов:', allClients.length);
-        console.log('📋 Клиенты:', allClients);
+        console.log(`✅ Загружено: ${allClients.length} клиентов, ${allDesigners.length} работников`);
 
-        // Обновляем статистику
+        // Обновляем интерфейс
         updateStatistics();
+        displayClients();
+        displayDesigners();
 
-        // Отображаем таблицу
-        renderClientsTable(allClients);
     } catch (error) {
-        console.error('❌ Ошибка загрузки клиентов:', error);
-        document.getElementById('tableContent').innerHTML = `
-            <div class="loading">
-                <p style="color: var(--danger);">
-                    <i class="fas fa-exclamation-triangle"></i> 
-                    Ошибка загрузки данных: ${error.message}
-                </p>
-            </div>
-        `;
+        console.error('Ошибка загрузки данных:', error);
+        showAlert('error', 'Ошибка загрузки данных из базы');
     }
 }
 
 // ============================================
-// Обновление статистики
+// СТАТИСТИКА
 // ============================================
-function updateStatistics() {
-    const totalClients = allClients.length;
-    const activeProjects = allClients.filter(c => c.project?.status === 'В работе').length;
-    const completedProjects = allClients.filter(c => c.project?.status === 'Завершён').length;
 
-    document.getElementById('totalClients').textContent = totalClients;
+function updateStatistics() {
+    // Общее количество клиентов
+    document.getElementById('totalClients').textContent = allClients.length;
+    
+    // Активные проекты
+    const activeProjects = allClients.filter(c => 
+        c.projectInfo?.status === 'В работе'
+    ).length;
     document.getElementById('activeProjects').textContent = activeProjects;
+    
+    // Завершённые проекты
+    const completedProjects = allClients.filter(c => 
+        c.projectInfo?.status === 'Завершён'
+    ).length;
     document.getElementById('completedProjects').textContent = completedProjects;
+
+    // Количество работников
+    document.getElementById('totalDesigners').textContent = allDesigners.length;
 }
 
 // ============================================
-// Отображение таблицы клиентов
+// ТАБЫ
 // ============================================
-function renderClientsTable(clients) {
-    const tableContent = document.getElementById('tableContent');
+
+function showTab(tabName) {
+    // Скрываем все табы
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Показываем выбранный
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+}
+
+// ============================================
+// КЛИЕНТЫ
+// ============================================
+
+function displayClients() {
+    const tbody = document.getElementById('clientsTableBody');
     
-    if (clients.length === 0) {
-        tableContent.innerHTML = `
-            <div class="loading">
-                <p><i class="fas fa-inbox"></i> Клиенты не найдены</p>
-            </div>
+    if (allClients.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                    Клиентов пока нет. Добавьте первого клиента!
+                </td>
+            </tr>
         `;
         return;
     }
 
-    let html = `
-        <table class="clients-table">
-            <thead>
-                <tr>
-                    <th>Имя</th>
-                    <th>Телефон</th>
-                    <th>Проект</th>
-                    <th>Статус</th>
-                    <th>Прогресс</th>
-                    <th>Дедлайн</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+    tbody.innerHTML = allClients.map(client => {
+        const personal = client.personalInfo || {};
+        const project = client.projectInfo || {};
+        const progress = project.progress || 0;
+        const designer = allDesigners.find(d => d.id === client.assignedDesigner);
+        const designerName = designer ? designer.personalInfo?.name : 'Не назначен';
 
-    clients.forEach(client => {
-        const name = client.personalInfo?.name || 'Не указано';
-        const phone = client.personalInfo?.phone || 'Не указано';
-        const projectTitle = client.project?.title || 'Нет проекта';
-        const status = client.project?.status || 'Неизвестно';
-        const progress = client.project?.progress || 0;
-        const deadline = client.project?.deadline || '-';
-
-        // Определяем класс статуса
-        let statusClass = 'pending';
-        if (status === 'В работе') statusClass = 'active';
-        if (status === 'Завершён') statusClass = 'completed';
-
-        html += `
+        return `
             <tr>
-                <td><strong>${name}</strong></td>
-                <td>${phone}</td>
-                <td>${projectTitle}</td>
-                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td><strong>${personal.name || 'Без имени'}</strong></td>
+                <td>${personal.phone || '-'}</td>
+                <td>${personal.email || '-'}</td>
+                <td>${project.title || 'Без названия'}</td>
+                <td><span class="status-badge ${project.status === 'Завершён' ? 'completed' : 'active'}">${project.status || 'В работе'}</span></td>
                 <td>
-                    <div class="progress-bar">
+                    <div class="progress-bar" style="width: 100px;">
                         <div class="progress-fill" style="width: ${progress}%"></div>
                     </div>
-                    <small>${progress}%</small>
                 </td>
-                <td>${deadline}</td>
+                <td>${designerName}</td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn-icon btn-view" onclick="viewClient('${client.id}')" title="Просмотр">
-                            <i class="fas fa-eye"></i>
-                        </button>
                         <button class="btn-icon btn-edit" onclick="editClient('${client.id}')" title="Редактировать">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn-icon btn-delete" onclick="deleteClient('${client.id}', '${name}')" title="Удалить">
+                        <button class="btn-icon btn-delete" onclick="deleteClient('${client.id}')" title="Удалить">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </td>
             </tr>
         `;
-    });
-
-    html += `
-            </tbody>
-        </table>
-    `;
-
-    tableContent.innerHTML = html;
+    }).join('');
 }
 
-// ============================================
-// Поиск клиентов
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            
-            if (!searchTerm) {
-                renderClientsTable(allClients);
-                return;
-            }
-
-            const filtered = allClients.filter(client => {
-                const name = (client.personalInfo?.name || '').toLowerCase();
-                const phone = (client.personalInfo?.phone || '').toLowerCase();
-                const project = (client.project?.title || '').toLowerCase();
-                
-                return name.includes(searchTerm) || 
-                       phone.includes(searchTerm) || 
-                       project.includes(searchTerm);
-            });
-
-            renderClientsTable(filtered);
-        });
-    }
-});
-
-// ============================================
-// Открыть модальное окно добавления клиента
-// ============================================
 function openAddClientModal() {
+    currentEditingClient = null;
     document.getElementById('modalTitle').textContent = 'Добавить клиента';
-    document.getElementById('clientForm').reset();
     document.getElementById('clientId').value = '';
+    document.getElementById('clientForm').reset();
     
-    // Установить текущую дату по умолчанию
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('projectStartDate').value = today;
+    // Заполняем список работников
+    updateDesignerSelect();
     
     document.getElementById('clientModal').classList.add('active');
 }
 
-// ============================================
-// Редактировать клиента
-// ============================================
+function updateDesignerSelect() {
+    const select = document.getElementById('assignedDesigner');
+    select.innerHTML = '<option value="">Не назначен</option>' + 
+        allDesigners.map(d => 
+            `<option value="${d.id}">${d.personalInfo?.name || d.id}</option>`
+        ).join('');
+}
+
 async function editClient(clientId) {
-    try {
-        const clientDoc = await window.firebaseDb.collection('clients').doc(clientId).get();
-        
-        if (!clientDoc.exists) {
-            alert('Клиент не найден');
-            return;
-        }
+    const client = allClients.find(c => c.id === clientId);
+    if (!client) return;
 
-        const data = clientDoc.data();
-        
-        document.getElementById('modalTitle').textContent = 'Редактировать клиента';
-        document.getElementById('clientId').value = clientId;
-        document.getElementById('clientName').value = data.personalInfo?.name || '';
-        document.getElementById('clientPhone').value = data.personalInfo?.phone || '';
-        document.getElementById('clientEmail').value = data.personalInfo?.email || '';
-        document.getElementById('projectTitle').value = data.project?.title || '';
-        document.getElementById('projectArea').value = data.project?.area || '';
-        document.getElementById('projectStatus').value = data.project?.status || 'В работе';
-        document.getElementById('projectProgress').value = data.project?.progress || 0;
-        document.getElementById('projectStartDate').value = data.project?.startDate || '';
-        document.getElementById('projectDeadline').value = data.project?.deadline || '';
-        
-        document.getElementById('clientModal').classList.add('active');
+    currentEditingClient = clientId;
+    document.getElementById('modalTitle').textContent = 'Редактировать клиента';
+    
+    // Заполняем форму
+    document.getElementById('clientId').value = clientId;
+    document.getElementById('clientName').value = client.personalInfo?.name || '';
+    document.getElementById('clientPhone').value = client.personalInfo?.phone || '';
+    document.getElementById('clientEmail').value = client.personalInfo?.email || '';
+    document.getElementById('projectTitle').value = client.projectInfo?.title || '';
+    document.getElementById('projectArea').value = client.projectInfo?.area || '';
+    document.getElementById('projectStatus').value = client.projectInfo?.status || 'В работе';
+    document.getElementById('projectProgress').value = client.projectInfo?.progress || 0;
+    document.getElementById('projectStartDate').value = client.projectInfo?.startDate || '';
+    document.getElementById('projectDeadline').value = client.projectInfo?.deadline || '';
+    
+    updateDesignerSelect();
+    document.getElementById('assignedDesigner').value = client.assignedDesigner || '';
+
+    document.getElementById('clientModal').classList.add('active');
+}
+
+async function deleteClient(clientId) {
+    if (!confirm('Вы уверены, что хотите удалить этого клиента?')) return;
+
+    try {
+        await firebaseDb.collection('clients').doc(clientId).delete();
+        showAlert('success', 'Клиент успешно удалён');
+        await loadAllData();
     } catch (error) {
-        console.error('Ошибка загрузки данных клиента:', error);
-        alert('Ошибка загрузки данных клиента');
+        console.error('Ошибка удаления:', error);
+        showAlert('error', 'Ошибка удаления клиента');
     }
 }
 
 // ============================================
-// Просмотр клиента
+// РАБОТНИКИ
 // ============================================
-async function viewClient(clientId) {
-    try {
-        const clientDoc = await window.firebaseDb.collection('clients').doc(clientId).get();
-        
-        if (!clientDoc.exists) {
-            alert('Клиент не найден');
-            return;
-        }
 
-        const data = clientDoc.data();
-        
-        alert(`
-📋 Информация о клиенте
-
-👤 Имя: ${data.personalInfo?.name || 'Не указано'}
-📞 Телефон: ${data.personalInfo?.phone || 'Не указано'}
-📧 Email: ${data.personalInfo?.email || 'Не указано'}
-
-🏠 Проект: ${data.project?.title || 'Нет проекта'}
-📏 Площадь: ${data.project?.area || '-'}
-📊 Статус: ${data.project?.status || '-'}
-⏳ Прогресс: ${data.project?.progress || 0}%
-📅 Начало: ${data.project?.startDate || '-'}
-🎯 Дедлайн: ${data.project?.deadline || '-'}
-        `);
-    } catch (error) {
-        console.error('Ошибка загрузки данных клиента:', error);
-        alert('Ошибка загрузки данных клиента');
-    }
-}
-
-// ============================================
-// Удалить клиента
-// ============================================
-async function deleteClient(clientId, clientName) {
-    if (!confirm(`Вы уверены, что хотите удалить клиента "${clientName}"?\n\nЭто действие нельзя отменить!`)) {
+function displayDesigners() {
+    const tbody = document.getElementById('designersTableBody');
+    
+    if (allDesigners.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                    Работников пока нет. Добавьте первого работника!
+                </td>
+            </tr>
+        `;
         return;
     }
 
+    tbody.innerHTML = allDesigners.map(designer => {
+        const personal = designer.personalInfo || {};
+        const projectCount = designer.assignedProjects?.length || 0;
+        const isActive = designer.isActive !== false;
+
+        return `
+            <tr>
+                <td><strong>${personal.name || 'Без имени'}</strong></td>
+                <td>${personal.phone || '-'}</td>
+                <td>${personal.email || '-'}</td>
+                <td>${projectCount}</td>
+                <td><span class="status-badge ${isActive ? 'active' : 'pending'}">${isActive ? 'Активен' : 'Неактивен'}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon btn-edit" onclick="editDesigner('${designer.id}')" title="Редактировать">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon btn-delete" onclick="deleteDesigner('${designer.id}')" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function openAddDesignerModal() {
+    currentEditingDesigner = null;
+    document.getElementById('designerModalTitle').textContent = 'Добавить работника';
+    document.getElementById('designerId').value = '';
+    document.getElementById('designerForm').reset();
+    
+    // Заполняем список проектов
+    updateProjectsCheckboxes();
+    
+    document.getElementById('designerModal').classList.add('active');
+}
+
+function updateProjectsCheckboxes() {
+    const container = document.getElementById('designerProjects');
+    
+    if (allClients.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-light);">Нет доступных проектов</p>';
+        return;
+    }
+
+    container.innerHTML = allClients.map(client => {
+        const checked = currentEditingDesigner && 
+            allDesigners.find(d => d.id === currentEditingDesigner)?.assignedProjects?.includes(client.id);
+        
+        return `
+            <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; cursor: pointer;">
+                <input type="checkbox" name="project" value="${client.id}" ${checked ? 'checked' : ''}>
+                <span>${client.personalInfo?.name || 'Без имени'} - ${client.projectInfo?.title || 'Без названия'}</span>
+            </label>
+        `;
+    }).join('');
+}
+
+async function editDesigner(designerId) {
+    const designer = allDesigners.find(d => d.id === designerId);
+    if (!designer) return;
+
+    currentEditingDesigner = designerId;
+    document.getElementById('designerModalTitle').textContent = 'Редактировать работника';
+    
+    // Заполняем форму
+    document.getElementById('designerId').value = designerId;
+    document.getElementById('designerName').value = designer.personalInfo?.name || '';
+    document.getElementById('designerPhone').value = designer.personalInfo?.phone || '';
+    document.getElementById('designerEmail').value = designer.personalInfo?.email || '';
+    
+    updateProjectsCheckboxes();
+    
+    document.getElementById('designerModal').classList.add('active');
+}
+
+async function deleteDesigner(designerId) {
+    if (!confirm('Вы уверены, что хотите удалить этого работника?')) return;
+
     try {
-        // Удаляем клиента из Firestore
-        await window.firebaseDb.collection('clients').doc(clientId).delete();
-        
-        alert('Клиент успешно удалён');
-        
-        // Перезагружаем список
-        loadClients();
+        // Проверяем, есть ли назначенные проекты
+        const designer = allDesigners.find(d => d.id === designerId);
+        if (designer.assignedProjects && designer.assignedProjects.length > 0) {
+            if (!confirm('У этого работника есть назначенные проекты. Продолжить удаление?')) {
+                return;
+            }
+            
+            // Убираем связи с проектами
+            const batch = firebaseDb.batch();
+            designer.assignedProjects.forEach(projectId => {
+                const ref = firebaseDb.collection('clients').doc(projectId);
+                batch.update(ref, { assignedDesigner: firebaseDb.FieldValue.delete() });
+            });
+            await batch.commit();
+        }
+
+        await firebaseDb.collection('clients').doc(designerId).delete();
+        showAlert('success', 'Работник успешно удалён');
+        await loadAllData();
     } catch (error) {
-        console.error('Ошибка удаления клиента:', error);
-        alert('Ошибка удаления клиента');
+        console.error('Ошибка удаления:', error);
+        showAlert('error', 'Ошибка удаления работника');
     }
 }
 
 // ============================================
-// Закрыть модальное окно
+// СОХРАНЕНИЕ КЛИЕНТА
 // ============================================
+
+document.getElementById('clientForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const phone = document.getElementById('clientPhone').value.replace(/\D/g, '');
+    
+    if (phone.length !== 11) {
+        showAlert('error', 'Введите корректный номер телефона');
+        return;
+    }
+
+    const clientData = {
+        personalInfo: {
+            name: document.getElementById('clientName').value,
+            phone: document.getElementById('clientPhone').value,
+            email: document.getElementById('clientEmail').value
+        },
+        projectInfo: {
+            title: document.getElementById('projectTitle').value,
+            area: document.getElementById('projectArea').value,
+            status: document.getElementById('projectStatus').value,
+            progress: parseInt(document.getElementById('projectProgress').value) || 0,
+            startDate: document.getElementById('projectStartDate').value,
+            deadline: document.getElementById('projectDeadline').value
+        },
+        role: 'client',
+        hasPassword: false,
+        isAdmin: false,
+        assignedDesigner: document.getElementById('assignedDesigner').value || null,
+        createdAt: currentEditingClient ? undefined : firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        if (currentEditingClient) {
+            // Обновление
+            await firebaseDb.collection('clients').doc(phone).update(clientData);
+            showAlert('success', 'Клиент успешно обновлён');
+        } else {
+            // Создание
+            await firebaseDb.collection('clients').doc(phone).set(clientData);
+            showAlert('success', 'Клиент успешно создан');
+        }
+
+        // Обновляем связь с работником
+        const designerId = clientData.assignedDesigner;
+        if (designerId) {
+            const designerDoc = await firebaseDb.collection('clients').doc(designerId).get();
+            if (designerDoc.exists) {
+                const assignedProjects = designerDoc.data().assignedProjects || [];
+                if (!assignedProjects.includes(phone)) {
+                    assignedProjects.push(phone);
+                    await firebaseDb.collection('clients').doc(designerId).update({
+                        assignedProjects: assignedProjects
+                    });
+                }
+            }
+        }
+
+        closeModal();
+        await loadAllData();
+    } catch (error) {
+        console.error('Ошибка сохранения:', error);
+        showAlert('error', 'Ошибка сохранения клиента');
+    }
+});
+
+// ============================================
+// СОХРАНЕНИЕ РАБОТНИКА
+// ============================================
+
+document.getElementById('designerForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const phone = document.getElementById('designerPhone').value.replace(/\D/g, '');
+    
+    if (phone.length !== 11) {
+        showAlert('error', 'Введите корректный номер телефона');
+        return;
+    }
+
+    // Получаем выбранные проекты
+    const selectedProjects = Array.from(
+        document.querySelectorAll('#designerProjects input[name="project"]:checked')
+    ).map(cb => cb.value);
+
+    const designerData = {
+        personalInfo: {
+            name: document.getElementById('designerName').value,
+            phone: document.getElementById('designerPhone').value,
+            email: document.getElementById('designerEmail').value
+        },
+        role: 'designer',
+        hasPassword: false,
+        isAdmin: false,
+        isActive: true,
+        assignedProjects: selectedProjects,
+        createdAt: currentEditingDesigner ? undefined : firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        if (currentEditingDesigner) {
+            // Обновление
+            await firebaseDb.collection('clients').doc(phone).update(designerData);
+            showAlert('success', 'Работник успешно обновлён');
+        } else {
+            // Создание
+            await firebaseDb.collection('clients').doc(phone).set(designerData);
+            showAlert('success', 'Работник успешно создан');
+        }
+
+        // Обновляем связи с проектами
+        const batch = firebaseDb.batch();
+        selectedProjects.forEach(projectId => {
+            const ref = firebaseDb.collection('clients').doc(projectId);
+            batch.update(ref, { assignedDesigner: phone });
+        });
+        await batch.commit();
+
+        closeDesignerModal();
+        await loadAllData();
+    } catch (error) {
+        console.error('Ошибка сохранения:', error);
+        showAlert('error', 'Ошибка сохранения работника');
+    }
+});
+
+// ============================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ============================================
+
 function closeModal() {
     document.getElementById('clientModal').classList.remove('active');
 }
 
-// Закрывать модальное окно при клике вне его
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('clientModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
+function closeDesignerModal() {
+    document.getElementById('designerModal').classList.remove('active');
+}
+
+function logout() {
+    if (confirm('Вы уверены, что хотите выйти?')) {
+        firebaseAuth.signOut().then(() => {
+            window.location.href = 'client-login.html';
         });
     }
-});
+}
 
-// ============================================
-// Сохранение клиента (добавление/редактирование)
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
-    const clientForm = document.getElementById('clientForm');
-    if (clientForm) {
-        clientForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const clientId = document.getElementById('clientId').value;
-            const name = document.getElementById('clientName').value.trim();
-            const phone = document.getElementById('clientPhone').value.trim();
-            const email = document.getElementById('clientEmail').value.trim();
-            const projectTitle = document.getElementById('projectTitle').value.trim();
-            const projectArea = document.getElementById('projectArea').value.trim();
-            const projectStatus = document.getElementById('projectStatus').value;
-            const projectProgress = parseInt(document.getElementById('projectProgress').value);
-            const projectStartDate = document.getElementById('projectStartDate').value;
-            const projectDeadline = document.getElementById('projectDeadline').value;
-
-            // Валидация
-            if (!name || !phone || !email || !projectTitle) {
-                alert('Пожалуйста, заполните все обязательные поля');
-                return;
-            }
-
-            // Получаем номер телефона без форматирования для ID
-            const phoneId = phone.replace(/\D/g, '');
-            
-            if (phoneId.length !== 11) {
-                alert('Неверный формат номера телефона');
-                return;
-            }
-
-            try {
-                const clientData = {
-                    personalInfo: {
-                        name: name,
-                        phone: phone,
-                        email: email
-                    },
-                    project: {
-                        title: projectTitle,
-                        area: projectArea,
-                        status: projectStatus,
-                        progress: projectProgress,
-                        startDate: projectStartDate,
-                        deadline: projectDeadline
-                    },
-                    hasPassword: false,
-                    isAdmin: false,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                if (clientId) {
-                    // Редактирование существующего клиента
-                    await window.firebaseDb.collection('clients').doc(clientId).update(clientData);
-                    alert('Клиент успешно обновлён');
-                } else {
-                    // Добавление нового клиента
-                    clientData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                    await window.firebaseDb.collection('clients').doc(phoneId).set(clientData);
-                    alert('Клиент успешно добавлен');
-                }
-
-                // Закрываем модальное окно
-                closeModal();
-                
-                // Перезагружаем список клиентов
-                loadClients();
-            } catch (error) {
-                console.error('Ошибка сохранения клиента:', error);
-                alert('Ошибка сохранения данных клиента');
-            }
-        });
-    }
-});
-
-// ============================================
-// Выход из админ-панели
-// ============================================
-async function logout() {
-    if (!confirm('Вы уверены, что хотите выйти?')) {
-        return;
-    }
-
-    try {
-        await window.firebaseAuth.signOut();
-        window.location.href = 'client-login.html';
-    } catch (error) {
-        console.error('Ошибка выхода:', error);
-        alert('Ошибка выхода из системы');
+function showAlert(type, message) {
+    // Простое уведомление (можно улучшить)
+    if (type === 'error') {
+        alert('❌ ' + message);
+    } else {
+        alert('✅ ' + message);
     }
 }
 
 // ============================================
-// Маска для телефона
+// ПОИСК
 // ============================================
-document.addEventListener('DOMContentLoaded', function() {
-    const phoneInput = document.getElementById('clientPhone');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            
-            if (value.length > 0 && value[0] !== '7') {
-                value = '7' + value;
-            }
-            
-            let formattedValue = '';
-            if (value.length > 0) {
-                formattedValue = '+7';
-                if (value.length > 1) {
-                    formattedValue += ' (' + value.substring(1, 4);
-                }
-                if (value.length >= 4) {
-                    formattedValue += ') ' + value.substring(4, 7);
-                }
-                if (value.length >= 7) {
-                    formattedValue += '-' + value.substring(7, 9);
-                }
-                if (value.length >= 9) {
-                    formattedValue += '-' + value.substring(9, 11);
-                }
-            }
-            
-            e.target.value = formattedValue;
-        });
-    }
+
+document.getElementById('searchInput')?.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#clientsTableBody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
 });
+
+console.log('✅ admin.js загружен (обновлённая версия с работниками)');
