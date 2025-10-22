@@ -1060,11 +1060,11 @@
                         const item = document.createElement('div');
                         item.className = 'portfolio-item';
                         
-                        // Используем реальные пути к изображениям
-                        const imagePath = project.mainImage.replace('images/portfolio/', 'Портфолио/');
+                        // Используем правильные пути к изображениям
+                        // mainImage уже содержит правильный путь из JSON
                         
                         item.innerHTML = `
-                            <img src="${imagePath}" alt="${project.title}" class="portfolio-image" onerror="this.src='https://via.placeholder.com/600x400?text=Изображение+не+найдено'">
+                            <img src="${project.mainImage}" alt="${project.title}" class="portfolio-image" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=Изображение+не+найдено'">
                             <div class="portfolio-overlay">
                                 <h3>${project.title}</h3>
                                 <p>${project.description}</p>
