@@ -25,7 +25,7 @@ function showProjectDetails(projectId) {
 
     const modalHTML = `
         <div class="modal active" id="projectDetailsModal" onclick="if(event.target === this) closeProjectDetails()">
-            <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-content" style="max-width: 900px; width: 95%;">
                 <div class="modal-header">
                     <h2><i class="fas fa-info-circle"></i> Детали проекта</h2>
                     <button class="close-modal" onclick="closeProjectDetails()">

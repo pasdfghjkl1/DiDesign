@@ -548,8 +548,8 @@
         .modal-content {
             background: white;
             border-radius: 20px;
-            max-width: 600px;
-            width: 100%;
+            max-width: 900px;
+            width: 95%;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -747,8 +747,13 @@
                 <h2 style="margin-bottom: 1.5rem;">Управление этапами</h2>
                 <p style="color: var(--text-light); margin-bottom: 2rem;">
                     <i class="fas fa-info-circle"></i> 
-                    Раздел находится в разработке
+                    Выберите проект из раздела "Мои проекты" и нажмите кнопку "Этапы" для управления этапами конкретного проекта.
                 </p>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="showTab('projects'); document.querySelectorAll('.tab-btn')[0].click();">
+                        <i class="fas fa-arrow-left"></i> Перейти к проектам
+                    </button>
+                </div>
             </div>
         </div>
     </div>

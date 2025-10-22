@@ -315,6 +315,8 @@ async function loadMessages(projectId) {
     messagesContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Загрузка сообщений...</p></div>';
 
     try {
+        console.log('🔄 Загрузка сообщений для проекта:', projectId);
+        
         // Отписываемся от предыдущего слушателя
         if (messagesListener) {
             messagesListener();
@@ -323,8 +325,8 @@ async function loadMessages(projectId) {
         // Слушаем сообщения в реальном времени
         messagesListener = firebaseDb.collection('messages')
             .where('projectId', '==', projectId)
-            .orderBy('timestamp', 'asc')
             .onSnapshot(snapshot => {
+                console.log('📨 Получено сообщений:', snapshot.size);
                 if (snapshot.empty) {
                     messagesContainer.innerHTML = `
                         <div style="text-align: center; color: var(--text-light); padding: 3rem;">
@@ -341,6 +343,13 @@ async function loadMessages(projectId) {
                         id: doc.id,
                         ...doc.data()
                     });
+                });
+                
+                // Сортируем сообщения по времени
+                messages.sort((a, b) => {
+                    const timeA = a.timestamp ? a.timestamp.toDate() : new Date(0);
+                    const timeB = b.timestamp ? b.timestamp.toDate() : new Date(0);
+                    return timeA - timeB;
                 });
 
                 displayMessages(messages);
