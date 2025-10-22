@@ -786,6 +786,7 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/designer.js"></script>
     <script src="js/designer-additions.js"></script>
+    <script src="js/timeline-milestones.js"></script>
 
     <script>
         // Переключение табов
@@ -801,6 +802,11 @@
             // Показываем выбранный таб
             document.getElementById(tabName + '-content').classList.add('active');
             event.currentTarget.classList.add('active');
+            
+            // Если открываем таб управления этапами - загружаем timeline
+            if (tabName === 'milestones') {
+                showTimelineMilestones();
+            }
         }
 
         // Выход

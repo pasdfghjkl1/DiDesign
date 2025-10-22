@@ -232,6 +232,11 @@ function renderStages(stages, projectId) {
                         </h3>
                     </div>
                     ${stage.description ? `<p style="color: var(--text-light); margin-left: 2.5rem;">${stage.description}</p>` : ''}
+                    ${stage.deadline ? `
+                        <p style="color: var(--primary-color); font-size: 0.9rem; margin-left: 2.5rem; margin-top: 0.5rem;">
+                            <i class="fas fa-calendar-alt"></i> Дедлайн: ${formatDate(new Date(stage.deadline))}
+                        </p>
+                    ` : ''}
                     ${stage.completedAt ? `<p style="color: var(--success); font-size: 0.9rem; margin-left: 2.5rem; margin-top: 0.5rem;"><i class="fas fa-check"></i> Завершено ${formatDate(new Date(stage.completedAt))}</p>` : ''}
                 </div>
                 <button onclick="deleteStage('${projectId}', ${index})" 
@@ -248,6 +253,20 @@ async function addNewStage(projectId) {
     if (!title || !title.trim()) return;
 
     const description = prompt('Описание этапа (необязательно):');
+    
+    const deadlineStr = prompt('Дедлайн этапа (формат: ДД.ММ.ГГГГ, например: 15.11.2024):');
+    let deadline = null;
+    
+    if (deadlineStr && deadlineStr.trim()) {
+        // Парсим дату из формата ДД.ММ.ГГГГ
+        const parts = deadlineStr.trim().split('.');
+        if (parts.length === 3) {
+            const day = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1; // Месяцы начинаются с 0
+            const year = parseInt(parts[2]);
+            deadline = new Date(year, month, day).toISOString();
+        }
+    }
 
     try {
         const project = assignedProjects.find(p => p.id === projectId);
@@ -256,6 +275,7 @@ async function addNewStage(projectId) {
         stages.push({
             title: title.trim(),
             description: description?.trim() || '',
+            deadline: deadline,
             completed: false,
             createdAt: new Date().toISOString()
         });
