@@ -212,6 +212,9 @@ function displayProjects(projects) {
                     <button class="btn btn-secondary" onclick="event.stopPropagation(); showProjectDetails('${project.id}')">
                         <i class="fas fa-info-circle"></i> Детали
                     </button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); showStages('${project.id}')">
+                        <i class="fas fa-tasks"></i> Этапы
+                    </button>
                 </div>
             </div>
         `;

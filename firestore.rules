@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Правила для коллекции клиентов
+    match /clients/{clientId} {
+      // Админы могут читать и писать всё
+      allow read, write: if request.auth != null && 
+        (get(/databases/$(database)/documents/clients/$(request.auth.uid.split('@')[0])).data.isAdmin == true ||
+         get(/databases/$(database)/documents/clients/$(request.auth.uid.split('@')[0])).data.role == 'admin');
+      
+      // Клиенты могут читать только свои данные
+      allow read: if request.auth != null && 
+        request.auth.uid.split('@')[0] == clientId;
+      
+      // Работники могут читать проекты, где они назначены
+      allow read: if request.auth != null && 
+        resource.data.assignedDesigner == request.auth.uid.split('@')[0];
+      
+      // Работники могут обновлять чат и прогресс
+      allow update: if request.auth != null && 
+        resource.data.assignedDesigner == request.auth.uid.split('@')[0] &&
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['chat', 'stages', 'projectInfo']));
+    }
+    
+    // Правила для коллекции сообщений
+    match /messages/{messageId} {
+      // Разрешить создание сообщений
+      allow create: if request.auth != null;
+      
+      // Разрешить чтение сообщений участникам проекта
+      allow read: if request.auth != null && (
+        // Работник может читать сообщения своих проектов
+        exists(/databases/$(database)/documents/clients/$(resource.data.projectId)) &&
+        get(/databases/$(database)/documents/clients/$(resource.data.projectId)).data.assignedDesigner == request.auth.uid.split('@')[0]
+        ||
+        // Клиент может читать сообщения своего проекта
+        resource.data.projectId == request.auth.uid.split('@')[0]
+        ||
+        // Админ может читать все
+        get(/databases/$(database)/documents/clients/$(request.auth.uid.split('@')[0])).data.isAdmin == true
+      );
+      
+      // Разрешить обновление (для отметки прочитанных)
+      allow update: if request.auth != null && (
+        exists(/databases/$(database)/documents/clients/$(resource.data.projectId)) &&
+        get(/databases/$(database)/documents/clients/$(resource.data.projectId)).data.assignedDesigner == request.auth.uid.split('@')[0]
+        ||
+        resource.data.projectId == request.auth.uid.split('@')[0]
+        ||
+        get(/databases/$(database)/documents/clients/$(request.auth.uid.split('@')[0])).data.isAdmin == true
+      );
+    }
+  }
+}
