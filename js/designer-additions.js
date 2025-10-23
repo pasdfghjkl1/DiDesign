@@ -190,7 +190,7 @@ async function showStages(projectId) {
 
                 <div style="padding: 1.5rem 0;">
                     <div style="margin-bottom: 1.5rem;">
-                        <button class="btn btn-primary" onclick="addNewStage('${projectId}')">
+                        <button class="btn btn-primary" onclick="openAddStageModal('${projectId}')">
                             <i class="fas fa-plus"></i> Добавить этап
                         </button>
                     </div>
@@ -248,43 +248,307 @@ function renderStages(stages, projectId) {
     `).join('');
 }
 
-async function addNewStage(projectId) {
-    const title = prompt('Введите название этапа:');
-    if (!title || !title.trim()) return;
+// ============================================
+// МОДАЛЬНОЕ ОКНО ДЛЯ ДОБАВЛЕНИЯ ЭТАПА
+// ============================================
 
-    const description = prompt('Описание этапа (необязательно):');
+function openAddStageModal(projectId) {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
     
-    const deadlineStr = prompt('Дедлайн этапа (формат: ДД.ММ.ГГГГ, например: 15.11.2024):');
-    let deadline = null;
+    const modalHTML = `
+        <div class="modal active" id="addStageModal" onclick="if(event.target === this) closeAddStageModal()" style="z-index: 1001;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-plus-circle"></i> Добавить новый этап</h2>
+                    <button class="close-modal" onclick="closeAddStageModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- Название этапа -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dark);">
+                            <i class="fas fa-heading"></i> Название этапа *
+                        </label>
+                        <input type="text" 
+                               id="stageTitle" 
+                               placeholder="Например: Разработка дизайн-проекта"
+                               style="width: 100%; padding: 12px; border: 2px solid #e5e5e5; border-radius: 10px; font-size: 1rem; outline: none; transition: all 0.3s ease;"
+                               onfocus="this.style.borderColor='var(--primary-color)'"
+                               onblur="this.style.borderColor='#e5e5e5'">
+                    </div>
+
+                    <!-- Описание -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dark);">
+                            <i class="fas fa-align-left"></i> Описание (необязательно)
+                        </label>
+                        <textarea 
+                            id="stageDescription" 
+                            placeholder="Подробное описание этапа..."
+                            rows="4"
+                            style="width: 100%; padding: 12px; border: 2px solid #e5e5e5; border-radius: 10px; font-size: 1rem; outline: none; resize: vertical; font-family: inherit; transition: all 0.3s ease;"
+                            onfocus="this.style.borderColor='var(--primary-color)'"
+                            onblur="this.style.borderColor='#e5e5e5'"></textarea>
+                    </div>
+
+                    <!-- Дедлайн -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dark);">
+                            <i class="fas fa-calendar-alt"></i> Дедлайн (необязательно)
+                        </label>
+                        
+                        <!-- Выбранная дата -->
+                        <div id="selectedDateDisplay" style="padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="color: var(--text-light);" id="selectedDateText">Дата не выбрана</span>
+                            <button onclick="clearSelectedDate()" id="clearDateBtn" style="display: none; background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">
+                                <i class="fas fa-times"></i> Очистить
+                            </button>
+                        </div>
+
+                        <!-- Календарь -->
+                        <div style="background: white; border: 2px solid #e5e5e5; border-radius: 10px; padding: 1rem;">
+                            <!-- Заголовок календаря -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <button onclick="changeMonth(-1)" class="btn btn-secondary" style="padding: 8px 12px;">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <h3 id="calendarMonthYear" style="margin: 0; color: var(--primary-color); font-size: 1.1rem;">
+                                    ${getMonthName(currentMonth)} ${currentYear}
+                                </h3>
+                                <button onclick="changeMonth(1)" class="btn btn-secondary" style="padding: 8px 12px;">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+
+                            <!-- Дни недели -->
+                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 0.5rem;">
+                                ${['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => `
+                                    <div style="text-align: center; font-weight: 600; color: var(--text-light); font-size: 0.85rem; padding: 5px;">
+                                        ${day}
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <!-- Дни календаря -->
+                            <div id="calendarDays" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+                                ${generateCalendarDays(currentMonth, currentYear)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeAddStageModal()">
+                        <i class="fas fa-times"></i> Отмена
+                    </button>
+                    <button class="btn btn-primary" onclick="saveNewStage('${projectId}')">
+                        <i class="fas fa-check"></i> Добавить этап
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .calendar-day {
+                aspect-ratio: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-weight: 500;
+                border: 2px solid transparent;
+            }
+            
+            .calendar-day:hover:not(.other-month):not(.selected) {
+                background: #e8f5e9;
+                border-color: var(--primary-light);
+            }
+            
+            .calendar-day.today {
+                border-color: var(--primary-color);
+                font-weight: 700;
+            }
+            
+            .calendar-day.selected {
+                background: var(--primary-color);
+                color: white;
+                font-weight: 700;
+            }
+            
+            .calendar-day.other-month {
+                color: #ccc;
+                cursor: default;
+            }
+            
+            .calendar-day.weekend:not(.selected) {
+                color: var(--danger);
+            }
+        </style>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+let selectedDate = null;
+let calendarMonth = new Date().getMonth();
+let calendarYear = new Date().getFullYear();
+
+function generateCalendarDays(month, year) {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const prevLastDay = new Date(year, month, 0);
     
-    if (deadlineStr && deadlineStr.trim()) {
-        // Парсим дату из формата ДД.ММ.ГГГГ
-        const parts = deadlineStr.trim().split('.');
-        if (parts.length === 3) {
-            const day = parseInt(parts[0]);
-            const month = parseInt(parts[1]) - 1; // Месяцы начинаются с 0
-            const year = parseInt(parts[2]);
-            deadline = new Date(year, month, day).toISOString();
+    // Понедельник = 1, Воскресенье = 0
+    let firstDayOfWeek = firstDay.getDay();
+    firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let daysHTML = '';
+    
+    // Дни предыдущего месяца
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+        const day = prevLastDay.getDate() - i;
+        daysHTML += `
+            <div class="calendar-day other-month">
+                ${day}
+            </div>
+        `;
+    }
+    
+    // Дни текущего месяца
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const currentDate = new Date(year, month, day);
+        currentDate.setHours(0, 0, 0, 0);
+        
+        const isToday = currentDate.getTime() === today.getTime();
+        const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+        const isSelected = selectedDate && selectedDate.getTime() === currentDate.getTime();
+        
+        const classes = ['calendar-day'];
+        if (isToday) classes.push('today');
+        if (isWeekend) classes.push('weekend');
+        if (isSelected) classes.push('selected');
+        
+        daysHTML += `
+            <div class="${classes.join(' ')}" onclick="selectDate(${year}, ${month}, ${day})">
+                ${day}
+            </div>
+        `;
+    }
+    
+    // Дни следующего месяца для заполнения сетки
+    const totalCells = firstDayOfWeek + lastDay.getDate();
+    const remainingCells = 7 - (totalCells % 7);
+    
+    if (remainingCells < 7) {
+        for (let day = 1; day <= remainingCells; day++) {
+            daysHTML += `
+                <div class="calendar-day other-month">
+                    ${day}
+                </div>
+            `;
         }
+    }
+    
+    return daysHTML;
+}
+
+function changeMonth(delta) {
+    calendarMonth += delta;
+    
+    if (calendarMonth > 11) {
+        calendarMonth = 0;
+        calendarYear++;
+    } else if (calendarMonth < 0) {
+        calendarMonth = 11;
+        calendarYear--;
+    }
+    
+    document.getElementById('calendarMonthYear').textContent = 
+        `${getMonthName(calendarMonth)} ${calendarYear}`;
+    
+    document.getElementById('calendarDays').innerHTML = 
+        generateCalendarDays(calendarMonth, calendarYear);
+}
+
+function selectDate(year, month, day) {
+    selectedDate = new Date(year, month, day);
+    selectedDate.setHours(0, 0, 0, 0);
+    
+    // Обновляем отображение выбранной даты
+    const dateText = formatDate(selectedDate);
+    document.getElementById('selectedDateText').textContent = dateText;
+    document.getElementById('selectedDateText').style.color = 'var(--primary-color)';
+    document.getElementById('selectedDateText').style.fontWeight = '600';
+    document.getElementById('clearDateBtn').style.display = 'block';
+    
+    // Обновляем календарь
+    document.getElementById('calendarDays').innerHTML = 
+        generateCalendarDays(calendarMonth, calendarYear);
+}
+
+function clearSelectedDate() {
+    selectedDate = null;
+    document.getElementById('selectedDateText').textContent = 'Дата не выбрана';
+    document.getElementById('selectedDateText').style.color = 'var(--text-light)';
+    document.getElementById('selectedDateText').style.fontWeight = 'normal';
+    document.getElementById('clearDateBtn').style.display = 'none';
+    
+    // Обновляем календарь
+    document.getElementById('calendarDays').innerHTML = 
+        generateCalendarDays(calendarMonth, calendarYear);
+}
+
+function getMonthName(month) {
+    const months = [
+        'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    ];
+    return months[month];
+}
+
+async function saveNewStage(projectId) {
+    const title = document.getElementById('stageTitle').value.trim();
+    const description = document.getElementById('stageDescription').value.trim();
+    
+    if (!title) {
+        alert('⚠️ Введите название этапа!');
+        document.getElementById('stageTitle').focus();
+        return;
     }
 
     try {
         const project = assignedProjects.find(p => p.id === projectId);
         const stages = project.stages || [];
         
-        stages.push({
-            title: title.trim(),
-            description: description?.trim() || '',
-            deadline: deadline,
+        const newStage = {
+            title: title,
+            description: description || '',
             completed: false,
             createdAt: new Date().toISOString()
-        });
+        };
+        
+        // Добавляем дедлайн если выбран
+        if (selectedDate) {
+            newStage.deadline = selectedDate.toISOString();
+        }
+        
+        stages.push(newStage);
 
         await firebaseDb.collection('clients').doc(projectId).update({
             stages: stages
         });
 
         alert('✅ Этап добавлен!');
+        closeAddStageModal();
         closeStages();
         await loadAssignedProjects();
         showStages(projectId);
@@ -293,6 +557,17 @@ async function addNewStage(projectId) {
         console.error('Ошибка добавления этапа:', error);
         alert('❌ Ошибка добавления этапа');
     }
+}
+
+function closeAddStageModal() {
+    const modal = document.getElementById('addStageModal');
+    if (modal) {
+        modal.remove();
+    }
+    // Сбрасываем выбранную дату
+    selectedDate = null;
+    calendarMonth = new Date().getMonth();
+    calendarYear = new Date().getFullYear();
 }
 
 async function toggleStage(projectId, index) {
@@ -361,4 +636,4 @@ function closeStages() {
     }
 }
 
-console.log('✅ Дополнительные функции designer.js загружены');
+console.log('✅ Дополнительные функции designer.js с модальным окном этапов загружены');
