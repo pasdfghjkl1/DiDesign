@@ -701,6 +701,7 @@
                             <th>Телефон</th>
                             <th>Email</th>
                             <th>Проект</th>
+                            <th>Тип проекта</th>
                             <th>Статус</th>
                             <th>Прогресс</th>
                             <th>Работник</th>
@@ -709,7 +710,7 @@
                     </thead>
                     <tbody id="clientsTableBody">
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 2rem;">
+                            <td colspan="9" style="text-align: center; padding: 2rem;">
                                 Загрузка данных...
                             </td>
                         </tr>
@@ -775,19 +776,30 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Телефон *</label>
+                    <label class="form-label">Телефон</label>
                     <input type="tel" class="form-control" id="clientPhone" 
-                           placeholder="+7 (999) 123-45-67" required>
+                           placeholder="+7 (999) 123-45-67">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email *</label>
-                    <input type="email" class="form-control" id="clientEmail" required>
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="clientEmail">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Название проекта *</label>
                     <input type="text" class="form-control" id="projectTitle" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Тип проекта *</label>
+                    <select class="form-control" id="projectType" required>
+                        <option value="">Выберите тип проекта</option>
+                        <option value="3D-визуализация">3D-визуализация</option>
+                        <option value="Дизайн проект">Дизайн проект</option>
+                        <option value="Чертёж">Чертёж</option>
+                        <option value="Комплексный">Комплексный проект</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -844,13 +856,13 @@
                             </button>
                         </label>
                         <input type="number" class="form-control" id="projectTotalCost" 
-                               placeholder="450000" min="0" step="1000">
+                               placeholder="450000.50" min="0" step="0.01">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Оплачено (₽)</label>
                         <input type="number" class="form-control" id="projectPaidAmount" 
-                               placeholder="300000" min="0" step="1000">
+                               placeholder="300000.00" min="0" step="0.01">
                     </div>
 
                     <div class="form-group">

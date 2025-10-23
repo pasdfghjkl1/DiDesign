@@ -217,7 +217,7 @@ function displayClients() {
     if (allClients.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-light);">
                     Клиентов пока нет. Добавьте первого клиента!
                 </td>
             </tr>
@@ -238,6 +238,7 @@ function displayClients() {
                 <td>${personal.phone || '-'}</td>
                 <td>${personal.email || '-'}</td>
                 <td>${project.title || 'Без названия'}</td>
+                <td><span class="status-badge active">${project.type || 'Не указан'}</span></td>
                 <td><span class="status-badge ${project.status === 'Завершён' ? 'completed' : 'active'}">${project.status || 'В работе'}</span></td>
                 <td>
                     <div class="progress-bar" style="width: 100px;">
@@ -293,6 +294,7 @@ async function editClient(clientId) {
     document.getElementById('clientPhone').value = client.personalInfo?.phone || '';
     document.getElementById('clientEmail').value = client.personalInfo?.email || '';
     document.getElementById('projectTitle').value = client.projectInfo?.title || '';
+    document.getElementById('projectType').value = client.projectInfo?.type || '';
     document.getElementById('projectArea').value = client.projectInfo?.area || '';
     document.getElementById('projectStatus').value = client.projectInfo?.status || 'В работе';
     document.getElementById('projectProgress').value = client.projectInfo?.progress || 0;
@@ -456,21 +458,37 @@ async function deleteDesigner(designerId) {
 document.getElementById('clientForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const phone = document.getElementById('clientPhone').value.replace(/\D/g, '');
+    const phone = document.getElementById('clientPhone').value.trim();
+    const email = document.getElementById('clientEmail').value.trim();
     
-    if (phone.length !== 11) {
-        showAlert('error', 'Введите корректный номер телефона');
+    // Проверка: хотя бы одно из полей (телефон или email) должно быть заполнено
+    if (!phone && !email) {
+        showAlert('error', 'Укажите хотя бы телефон или email клиента');
         return;
     }
+    
+    // Если телефон указан, проверяем его формат
+    let phoneDigits = '';
+    if (phone) {
+        phoneDigits = phone.replace(/\D/g, '');
+        if (phoneDigits.length !== 11) {
+            showAlert('error', 'Введите корректный номер телефона (11 цифр)');
+            return;
+        }
+    }
+    
+    // Используем телефон как ID, если он есть, иначе генерируем ID на основе email
+    const clientId = phoneDigits || email.replace(/[^a-zA-Z0-9]/g, '_');
 
     const clientData = {
         personalInfo: {
             name: document.getElementById('clientName').value,
-            phone: document.getElementById('clientPhone').value,
-            email: document.getElementById('clientEmail').value
+            phone: phone,
+            email: email
         },
         projectInfo: {
             title: document.getElementById('projectTitle').value,
+            type: document.getElementById('projectType').value,
             area: document.getElementById('projectArea').value,
             status: document.getElementById('projectStatus').value,
             progress: parseInt(document.getElementById('projectProgress').value) || 0,
@@ -494,11 +512,11 @@ document.getElementById('clientForm')?.addEventListener('submit', async (e) => {
     try {
         if (currentEditingClient) {
             // Обновление
-            await firebaseDb.collection('clients').doc(phone).update(clientData);
+            await firebaseDb.collection('clients').doc(clientId).update(clientData);
             showAlert('success', 'Клиент успешно обновлён');
         } else {
             // Создание
-            await firebaseDb.collection('clients').doc(phone).set(clientData);
+            await firebaseDb.collection('clients').doc(clientId).set(clientData);
             showAlert('success', 'Клиент успешно создан');
         }
 
@@ -508,8 +526,8 @@ document.getElementById('clientForm')?.addEventListener('submit', async (e) => {
             const designerDoc = await firebaseDb.collection('clients').doc(designerId).get();
             if (designerDoc.exists) {
                 const assignedProjects = designerDoc.data().assignedProjects || [];
-                if (!assignedProjects.includes(phone)) {
-                    assignedProjects.push(phone);
+                if (!assignedProjects.includes(clientId)) {
+                    assignedProjects.push(clientId);
                     await firebaseDb.collection('clients').doc(designerId).update({
                         assignedProjects: assignedProjects
                     });

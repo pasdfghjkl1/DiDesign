@@ -147,6 +147,40 @@ async function loadAssignedProjects() {
 }
 
 // ============================================
+// ФИЛЬТРАЦИЯ ПРОЕКТОВ
+// ============================================
+
+let currentFilter = 'all';
+
+function filterProjects(filterType) {
+    currentFilter = filterType;
+    
+    // Обновляем активную кнопку
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-filter="${filterType}"]`).classList.add('active');
+    
+    // Фильтруем проекты
+    let filteredProjects = assignedProjects;
+    
+    if (filterType === 'active') {
+        filteredProjects = assignedProjects.filter(p => 
+            p.projectInfo?.status !== 'Завершён'
+        );
+    } else if (filterType === 'completed') {
+        filteredProjects = assignedProjects.filter(p => 
+            p.projectInfo?.status === 'Завершён'
+        );
+    }
+    
+    console.log(`Фильтр: ${filterType}, найдено проектов: ${filteredProjects.length}`);
+    
+    // Отображаем отфильтрованные проекты
+    displayProjects(filteredProjects);
+}
+
+// ============================================
 // ОТОБРАЖЕНИЕ ПРОЕКТОВ
 // ============================================
 
@@ -214,6 +248,9 @@ function displayProjects(projects) {
                     </button>
                     <button class="btn btn-secondary" onclick="event.stopPropagation(); showStages('${project.id}')">
                         <i class="fas fa-tasks"></i> Этапы
+                    </button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); manageComments('${project.id}')">
+                        <i class="fas fa-sticky-note"></i> Заметки
                     </button>
                 </div>
             </div>
@@ -524,6 +561,163 @@ function showProjectDetails(projectId) {
 
     alert('Детальная информация о проекте:\n\n' + 
           'Эта функция будет реализована в следующей версии');
+}
+
+// ============================================
+// УПРАВЛЕНИЕ КОММЕНТАРИЯМИ (ЗАМЕТКАМИ)
+// ============================================
+
+async function manageComments(projectId) {
+    const project = assignedProjects.find(p => p.id === projectId);
+    if (!project) return;
+    
+    const comments = project.designerComments || [];
+    
+    // Показываем список комментариев
+    let commentsList = '<h3>Мои заметки по проекту</h3>';
+    
+    if (comments.length === 0) {
+        commentsList += '<p style="color: #666; margin: 1rem 0;">Заметок пока нет</p>';
+    } else {
+        commentsList += '<div style="max-height: 300px; overflow-y: auto; margin: 1rem 0;">';
+        comments.forEach((comment, index) => {
+            const date = comment.timestamp ? new Date(comment.timestamp.seconds * 1000).toLocaleString('ru-RU') : 'Дата неизвестна';
+            commentsList += `
+                <div style="background: #f8f9fa; padding: 1rem; margin-bottom: 0.5rem; border-radius: 8px; border-left: 3px solid #2c5530;">
+                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">${date}</div>
+                    <div style="color: #1a1a1a;">${comment.text}</div>
+                    <button onclick="deleteComment('${projectId}', ${index})" style="margin-top: 0.5rem; padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                        <i class="fas fa-trash"></i> Удалить
+                    </button>
+                </div>
+            `;
+        });
+        commentsList += '</div>';
+    }
+    
+    // Форма добавления комментария
+    commentsList += `
+        <div style="margin-top: 1rem;">
+            <textarea id="newCommentText" placeholder="Напишите заметку..." 
+                      style="width: 100%; padding: 0.75rem; border: 2px solid #e5e5e5; border-radius: 8px; 
+                             min-height: 100px; font-family: 'Inter', sans-serif; resize: vertical;"></textarea>
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <button onclick="closeCommentModal()" 
+                        style="padding: 8px 16px; background: #6c757d; color: white; border: none; 
+                               border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    Закрыть
+                </button>
+                <button onclick="addComment('${projectId}')" 
+                        style="padding: 8px 16px; background: #2c5530; color: white; border: none; 
+                               border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-plus"></i> Добавить заметку
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Создаём модальное окно
+    const modal = document.createElement('div');
+    modal.id = 'commentModal';
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.5); z-index: 1000; display: flex; 
+        align-items: center; justify-content: center; padding: 2rem;
+    `;
+    
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white; border-radius: 15px; padding: 2rem; 
+        max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;
+    `;
+    modalContent.innerHTML = commentsList;
+    
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+    
+    // Закрытие по клику вне модального окна
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeCommentModal();
+        }
+    });
+}
+
+async function addComment(projectId) {
+    const textarea = document.getElementById('newCommentText');
+    const text = textarea.value.trim();
+    
+    if (!text) {
+        alert('⚠️ Введите текст заметки');
+        return;
+    }
+    
+    try {
+        const project = assignedProjects.find(p => p.id === projectId);
+        const comments = project.designerComments || [];
+        
+        // Добавляем новый комментарий
+        comments.push({
+            text: text,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            author: currentUser.personalInfo.name
+        });
+        
+        // Обновляем в Firestore
+        await firebaseDb.collection('clients').doc(projectId).update({
+            designerComments: comments
+        });
+        
+        console.log('✅ Заметка добавлена');
+        
+        // Обновляем локальные данные
+        project.designerComments = comments;
+        
+        // Закрываем и открываем заново для обновления
+        closeCommentModal();
+        setTimeout(() => manageComments(projectId), 100);
+        
+    } catch (error) {
+        console.error('❌ Ошибка добавления заметки:', error);
+        alert('Ошибка добавления заметки: ' + error.message);
+    }
+}
+
+async function deleteComment(projectId, commentIndex) {
+    if (!confirm('Удалить эту заметку?')) return;
+    
+    try {
+        const project = assignedProjects.find(p => p.id === projectId);
+        const comments = project.designerComments || [];
+        
+        // Удаляем комментарий
+        comments.splice(commentIndex, 1);
+        
+        // Обновляем в Firestore
+        await firebaseDb.collection('clients').doc(projectId).update({
+            designerComments: comments
+        });
+        
+        console.log('✅ Заметка удалена');
+        
+        // Обновляем локальные данные
+        project.designerComments = comments;
+        
+        // Закрываем и открываем заново для обновления
+        closeCommentModal();
+        setTimeout(() => manageComments(projectId), 100);
+        
+    } catch (error) {
+        console.error('❌ Ошибка удаления заметки:', error);
+        alert('Ошибка удаления заметки: ' + error.message);
+    }
+}
+
+function closeCommentModal() {
+    const modal = document.getElementById('commentModal');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 // Enter для отправки сообщений
