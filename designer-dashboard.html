@@ -284,6 +284,19 @@
             display: flex;
             gap: 0.5rem;
             margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .project-actions .btn {
+            flex: 1 1 auto;
+            min-width: 0;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .project-actions .btn i {
+            margin-right: 0.25rem;
         }
 
         .btn {
@@ -527,6 +540,17 @@
 
             .chat-sidebar {
                 display: none;
+            }
+            
+            .project-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            
+            .project-actions .btn {
+                font-size: 0.8rem;
+                padding: 6px 10px;
             }
         }
 

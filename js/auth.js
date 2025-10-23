@@ -65,13 +65,25 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (clientDoc.exists) {
                 const clientData = clientDoc.data();
+                const email = `${phone}@di-studio.local`;
                 
-                // Проверяем, есть ли у клиента пароль
-                if (clientData.hasPassword) {
-                    // Клиент уже зарегистрирован - показываем форму входа
-                    showLoginStep();
-                } else {
-                    // Клиент в базе, но пароль не создан - показываем форму создания пароля
+                // Проверяем, есть ли пользователь в Firebase Auth
+                try {
+                    // Пробуем выполнить фейковый вход для проверки
+                    const methods = await window.firebaseAuth.fetchSignInMethodsForEmail(email);
+                    
+                    if (methods && methods.length > 0) {
+                        // Пользователь существует в Auth - показываем форму входа
+                        console.log('✅ Пользователь найден в Auth, методы:', methods);
+                        showLoginStep();
+                    } else {
+                        // Пользователя нет в Auth - показываем форму создания пароля
+                        console.log('⚠️ Пользователь не найден в Auth, нужно создать пароль');
+                        showCreatePasswordStep();
+                    }
+                } catch (authError) {
+                    // Ошибка при проверке Auth - скорее всего пользователя нет
+                    console.log('⚠️ Ошибка проверки Auth:', authError.message);
                     showCreatePasswordStep();
                 }
             } else {

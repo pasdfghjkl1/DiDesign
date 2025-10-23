@@ -241,7 +241,7 @@ function displayProjects(projects) {
 
                 <div class="project-actions">
                     <button class="btn btn-primary" onclick="event.stopPropagation(); openChat('${project.id}')">
-                        <i class="fas fa-comments"></i> Открыть чат
+                        <i class="fas fa-comments"></i> Чат
                     </button>
                     <button class="btn btn-secondary" onclick="event.stopPropagation(); showProjectDetails('${project.id}')">
                         <i class="fas fa-info-circle"></i> Детали
