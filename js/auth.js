@@ -67,24 +67,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 const clientData = clientDoc.data();
                 const email = `${phone}@di-studio.local`;
                 
-                // Проверяем, есть ли пользователь в Firebase Auth
-                try {
-                    // Пробуем выполнить фейковый вход для проверки
-                    const methods = await window.firebaseAuth.fetchSignInMethodsForEmail(email);
-                    
-                    if (methods && methods.length > 0) {
-                        // Пользователь существует в Auth - показываем форму входа
-                        console.log('✅ Пользователь найден в Auth, методы:', methods);
-                        showLoginStep();
-                    } else {
-                        // Пользователя нет в Auth - показываем форму создания пароля
-                        console.log('⚠️ Пользователь не найден в Auth, нужно создать пароль');
+                // СНАЧАЛА проверяем hasPassword в Firestore (приоритет!)
+                if (clientData.hasPassword === true) {
+                    // Пароль уже создан - показываем форму входа
+                    console.log('✅ Пользователь имеет пароль (hasPassword: true) - форма входа');
+                    showLoginStep();
+                } else {
+                    // hasPassword не установлен или false - проверяем Firebase Auth
+                    console.log('⚠️ hasPassword не установлен, проверяем Firebase Auth...');
+                    try {
+                        const methods = await window.firebaseAuth.fetchSignInMethodsForEmail(email);
+                        
+                        if (methods && methods.length > 0) {
+                            // Пользователь существует в Auth - показываем форму входа
+                            console.log('✅ Пользователь найден в Auth, методы:', methods);
+                            showLoginStep();
+                            
+                            // Обновляем hasPassword в Firestore
+                            await window.firebaseDb.collection('clients').doc(phone).update({
+                                hasPassword: true
+                            });
+                        } else {
+                            // Пользователя нет в Auth - показываем форму создания пароля
+                            console.log('⚠️ Пользователь не найден в Auth, нужно создать пароль');
+                            showCreatePasswordStep();
+                        }
+                    } catch (authError) {
+                        // Ошибка при проверке Auth - скорее всего пользователя нет
+                        console.log('⚠️ Ошибка проверки Auth:', authError.message);
                         showCreatePasswordStep();
                     }
-                } catch (authError) {
-                    // Ошибка при проверке Auth - скорее всего пользователя нет
-                    console.log('⚠️ Ошибка проверки Auth:', authError.message);
-                    showCreatePasswordStep();
                 }
             } else {
                 // Клиента нет в базе
