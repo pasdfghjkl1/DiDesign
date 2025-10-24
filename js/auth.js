@@ -67,6 +67,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const clientData = clientDoc.data();
                 const email = `${phone}@di-studio.local`;
                 
+                // ДЕБАГ: Выводим все данные клиента
+                console.log('📱 Проверка телефона:', phone);
+                console.log('📧 Email:', email);
+                console.log('📋 Данные клиента из Firestore:', clientData);
+                console.log('🔐 hasPassword:', clientData.hasPassword);
+                
                 // СНАЧАЛА проверяем hasPassword в Firestore (приоритет!)
                 if (clientData.hasPassword === true) {
                     // Пароль уже создан - показываем форму входа
@@ -74,9 +80,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     showLoginStep();
                 } else {
                     // hasPassword не установлен или false - проверяем Firebase Auth
-                    console.log('⚠️ hasPassword не установлен, проверяем Firebase Auth...');
+                    console.log('⚠️ hasPassword не установлен или false, проверяем Firebase Auth...');
                     try {
                         const methods = await window.firebaseAuth.fetchSignInMethodsForEmail(email);
+                        
+                        console.log('🔍 Методы входа для email:', methods);
                         
                         if (methods && methods.length > 0) {
                             // Пользователь существует в Auth - показываем форму входа
@@ -84,17 +92,19 @@ document.addEventListener('DOMContentLoaded', function() {
                             showLoginStep();
                             
                             // Обновляем hasPassword в Firestore
+                            console.log('🔄 Обновляем hasPassword на true в Firestore...');
                             await window.firebaseDb.collection('clients').doc(phone).update({
                                 hasPassword: true
                             });
+                            console.log('✅ hasPassword обновлён!');
                         } else {
                             // Пользователя нет в Auth - показываем форму создания пароля
-                            console.log('⚠️ Пользователь не найден в Auth, нужно создать пароль');
+                            console.log('⚠️ Пользователь не найден в Auth (methods.length = 0), нужно создать пароль');
                             showCreatePasswordStep();
                         }
                     } catch (authError) {
                         // Ошибка при проверке Auth - скорее всего пользователя нет
-                        console.log('⚠️ Ошибка проверки Auth:', authError.message);
+                        console.log('❌ Ошибка проверки Auth:', authError.code, authError.message);
                         showCreatePasswordStep();
                     }
                 }
