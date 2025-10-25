@@ -9,6 +9,7 @@
       "year": "2024",
       "style": "Скандинавский",
       "services": "Дизайн-проект, 3D-визуализация",
+      "shortDescription": "Скандинавская терраса в гармонии с природой",
       "description": "Открытая терраса, где скандинавская простота встречается с природной гармонией. Пространство для отдыха, созданное с уважением к окружающей среде.",
       "fullDescription": [
         "Терраса загородного дома — это место, где начинается и заканчивается каждый день. В этом проекте мы создали пространство для спокойного отдыха, объединяющее человека с природой через призму скандинавской философии дизайна.",
@@ -88,7 +89,8 @@
           "url": "images/portfolio/bedroom-classic-modern/photo_9_2025-09-27_21-57-31.jpg",
           "alt": "Фото 9 2025-09-27 21-57-31"
         }
-      ]
+      ],
+      "shortDescription": "Элегантная спальня с классикой и современностью"
     },
     {
       "id": "pink-classic-bedroom",
@@ -131,7 +133,8 @@
           "url": "images/portfolio/pink-classic-bedroom/photo_13_2025-09-27_21-57-31.jpg",
           "alt": "Фото 13 2025-09-27 21-57-31"
         }
-      ]
+      ],
+      "shortDescription": "Романтичная розовая спальня в классическом стиле"
     },
     {
       "id": "boy-room-modern-classic",
@@ -194,7 +197,8 @@
           "url": "images/portfolio/boy-room-modern-classic/photo_30_2025-09-27_21-57-31.jpg",
           "alt": "Фото 30 2025-09-27 21-57-31"
         }
-      ]
+      ],
+      "shortDescription": "Комфортная детская с классикой для мальчика"
     },
     {
       "id": "girl-room-modern",
@@ -233,7 +237,8 @@
           "url": "images/portfolio/girl-room-modern/photo_31_2025-09-27_21-57-31.jpg",
           "alt": "Фото 31 2025-09-27 21-57-31"
         }
-      ]
+      ],
+      "shortDescription": "Уютная современная детская для девочки"
     },
     {
       "id": "girl-loft-bedroom",
@@ -276,7 +281,8 @@
           "url": "images/portfolio/girl-loft-bedroom/photo_20_2025-09-27_21-57-31.jpg",
           "alt": "Фото 20 2025-09-27 21-57-31"
         }
-      ]
+      ],
+      "shortDescription": "Стильная спальня-лофт для девочки-подростка"
     },
     {
       "id": "loft-apartment",
@@ -355,7 +361,8 @@
           "url": "images/portfolio/loft-apartment/photo_72_2025-09-27_21-57-31.jpg",
           "alt": "Фото 72 2025-09-27 21-57-31"
         }
-      ]
+      ],
+      "shortDescription": "Изысканная женская спальня с ар-деко"
     },
     {
       "id": "apartment-70sqm",
@@ -474,7 +481,8 @@
           "url": "images/portfolio/apartment-70sqm/IMG_20250929_182947_552.jpg",
           "alt": "IMG 20250929 182947 552"
         }
-      ]
+      ],
+      "shortDescription": "Теплая городская квартира на Васильевском"
     },
     {
       "id": "apartment-japanese-bedroom",
@@ -593,7 +601,8 @@
           "url": "images/portfolio/apartment-japanese-bedroom/ванна.jpg",
           "alt": "ванна"
         }
-      ]
+      ],
+      "shortDescription": "Классическая спальня в современном исполнении"
     },
     {
       "id": "apartment-beige-olive",
@@ -652,7 +661,8 @@
           "url": "images/portfolio/apartment-beige-olive/photo_4_2025-09-27_21-57-42.jpg",
           "alt": "Фото 4 2025-09-27 21-57-42"
         }
-      ]
+      ],
+      "shortDescription": "Элегантный современный офис"
     },
     {
       "id": "modern-apartment-extended",
@@ -695,7 +705,8 @@
           "url": "images/portfolio/modern-apartment-extended/IMG_20250929_190047_286.jpg",
           "alt": "IMG 20250929 190047 286"
         }
-      ]
+      ],
+      "shortDescription": "Стильный ресторан с грузинским колоритом"
     },
     {
       "id": "modern-apartment-compact",
@@ -810,7 +821,8 @@
           "url": "images/portfolio/modern-apartment-compact/IMG_20250929_190826_527.jpg",
           "alt": "IMG 20250929 190826 527"
         }
-      ]
+      ],
+      "shortDescription": "Современная спальня с балконом"
     },
     {
       "id": "modern-kitchen",
@@ -849,7 +861,8 @@
           "url": "images/portfolio/modern-kitchen/IMG_7214.JPG",
           "alt": "IMG 7214"
         }
-      ]
+      ],
+      "shortDescription": "Светлая эко-детская для комфортной учебы"
     },
     {
       "id": "unusual-bathroom",
@@ -892,7 +905,8 @@
           "url": "images/portfolio/unusual-bathroom/IMG_7319.JPG",
           "alt": "IMG 7319"
         }
-      ]
+      ],
+      "shortDescription": "Минималистичная кухня-гостиная в бежевом"
     },
     {
       "id": "restaurant",
@@ -983,7 +997,8 @@
           "url": "images/portfolio/restaurant/IMG_20250929_192702_568.JPG",
           "alt": "IMG 20250929 192702 568"
         }
-      ]
+      ],
+      "shortDescription": "Современная квартира для молодой пары"
     },
     {
       "id": "gym",
@@ -1042,7 +1057,8 @@
           "url": "images/portfolio/gym/IMG_20250929_193211_719.JPG",
           "alt": "IMG 20250929 193211 719"
         }
-      ]
+      ],
+      "shortDescription": "Элегантная детская для девочки в классике"
     },
     {
       "id": "computer-club",
@@ -1081,7 +1097,8 @@
           "url": "images/portfolio/computer-club/12311-sharpen-denoise-upscale-2x.jpg",
           "alt": "12311-sharpen-denoise-upscale-2x"
         }
-      ]
+      ],
+      "shortDescription": "Изысканная спальня с классикой и золотом"
     },
     {
       "id": "business-center-concepts",
@@ -1124,7 +1141,8 @@
           "url": "images/portfolio/business-center-concepts/photo_8_2025-09-27_21-57-42.jpg",
           "alt": "Фото 8 2025-09-27 21-57-42"
         }
-      ]
+      ],
+      "shortDescription": "Уютная американская спальня с теплотой"
     }
   ]
 }

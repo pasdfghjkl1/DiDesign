@@ -827,7 +827,7 @@
                     <div class="portfolio-content">
                         <h3 class="portfolio-title">${project.title}</h3>
                         <p class="portfolio-category">${project.categoryName}</p>
-                        <p class="portfolio-description">${project.description.substring(0, 100)}...</p>
+                        <p class="portfolio-description">${project.shortDescription || project.description.substring(0, 100) + '...'}</p>
                         <div class="portfolio-info">
                             <span class="portfolio-area">${project.area}</span>
                             <span class="portfolio-year">${project.year}</span>
