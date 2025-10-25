@@ -764,9 +764,25 @@
 
         .process-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 40px;
             margin-top: 50px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Последние 2 элемента занимают центральное положение */
+        .process-step:nth-child(4) {
+            grid-column: 1 / 2;
+            margin-left: auto;
+            margin-right: 20px;
+        }
+
+        .process-step:nth-child(5) {
+            grid-column: 2 / 3;
+            margin-left: 20px;
+            margin-right: auto;
         }
 
         .process-step {
@@ -990,6 +1006,18 @@
             .btn-result {
                 width: 100%;
                 justify-content: center;
+            }
+
+            /* Адаптивность для процесса работы */
+            .process-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .process-step:nth-child(4),
+            .process-step:nth-child(5) {
+                grid-column: 1;
+                margin: 0;
             }
         }
     </style>
