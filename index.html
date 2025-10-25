@@ -276,6 +276,53 @@
             font-weight: 600;
         }
 
+        /* Популярная карточка */
+        .service-card-popular {
+            position: relative;
+            border: 3px solid var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        .popular-label {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #d4a574 0%, #b8956b 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow);
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .popular-label i {
+            color: #FFD700;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .service-card-popular:hover {
+            transform: scale(1.08);
+            border-color: #b8956b;
+        }
+
+        .service-card-popular .service-icon {
+            background: linear-gradient(135deg, #d4a574 0%, #b8956b 100%);
+        }
+
+        .service-card-popular .service-price {
+            background: linear-gradient(135deg, #d4a574 0%, #b8956b 100%);
+            font-size: 1.3rem;
+        }
+
         /* Портфолио */
         .portfolio {
             background: white;
@@ -779,34 +826,48 @@
     <section class="section services" id="services">
         <div class="container">
             <div class="section-title">
-                <h2>Наши услуги</h2>
-                <p>Полный цикл услуг для создания идеального интерьера</p>
+                <h2>Наши пакеты услуг</h2>
+                <p>Три варианта комплексных решений для создания идеального интерьера</p>
             </div>
             <div class="services-grid">
+                <!-- Пакет Основа -->
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-drafting-compass"></i>
                     </div>
-                    <h3>Дизайн интерьера</h3>
-                    <p>Создаем уникальные решения для вашего пространства с учетом ваших потребностей и стиля жизни</p>
-                    <div class="service-price">от 1500 руб/м²</div>
+                    <h3>Основа</h3>
+                    <p>Базовый пакет включает планировочные решения, дизайн-концепцию, чертежи и спецификацию материалов. Идеально для тех, кто готов контролировать ремонт самостоятельно</p>
+                    <div class="service-price">1 200 ₽/м²</div>
                 </div>
+                
+                <!-- Пакет Гармония (Популярный) -->
+                <div class="service-card service-card-popular">
+                    <div class="popular-label">
+                        <i class="fas fa-star"></i> Популярный выбор
+                    </div>
+                    <div class="service-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3>Гармония</h3>
+                    <p>Расширенный пакет с 3D-визуализацией (5-7 ракурсов), детальной документацией, схемами электрики и сантехники. Полное представление о будущем интерьере!</p>
+                    <div class="service-price">2 000 ₽/м²</div>
+                </div>
+                
+                <!-- Пакет Эксклюзив -->
                 <div class="service-card">
                     <div class="service-icon">
-                        <i class="fas fa-cube"></i>
+                        <i class="fas fa-crown"></i>
                     </div>
-                    <h3>3D-визуализация</h3>
-                    <p>Реалистичные изображения вашего будущего интерьера для полного понимания результата</p>
-                    <div class="service-price">от 5000 руб</div>
+                    <h3>Эксклюзив</h3>
+                    <p>Полный пакет "под ключ" с расширенной визуализацией (10-15 ракурсов), детальной сметой, комплектацией, интерактивным 3D-туром и приоритетной поддержкой 24/7</p>
+                    <div class="service-price">2 800 ₽/м²</div>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-ruler-combined"></i>
-                    </div>
-                    <h3>Проектирование</h3>
-                    <p>Техническая документация и чертежи для точной реализации дизайн-проекта</p>
-                    <div class="service-price">от 800 руб/м²</div>
-                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2.5rem;">
+                <a href="services-page.html" class="btn btn-primary">
+                    <i class="fas fa-info-circle"></i>
+                    Подробнее о пакетах
+                </a>
             </div>
         </div>
     </section>
