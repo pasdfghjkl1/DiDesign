@@ -772,7 +772,7 @@
             margin-right: auto;
         }
 
-        /* Первые 3 элемента в верхнем ряду - каждый занимает по 2 колонки */
+        /* Десктоп: 3 элемента в ряд (2 ряда по 3) */
         .process-step:nth-child(1) {
             grid-column: 1 / 3;
         }
@@ -785,7 +785,6 @@
             grid-column: 5 / 7;
         }
 
-        /* Следующие 3 элемента в нижнем ряду - каждый занимает по 2 колонки */
         .process-step:nth-child(4) {
             grid-column: 1 / 3;
         }
@@ -796,6 +795,55 @@
 
         .process-step:nth-child(6) {
             grid-column: 5 / 7;
+        }
+
+        /* Планшеты: 2 элемента в ряд (3 ряда по 2) */
+        @media (max-width: 900px) {
+            .process-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 30px;
+            }
+
+            .process-step:nth-child(1) {
+                grid-column: 1 / 3;
+            }
+
+            .process-step:nth-child(2) {
+                grid-column: 3 / 5;
+            }
+
+            .process-step:nth-child(3) {
+                grid-column: 1 / 3;
+            }
+
+            .process-step:nth-child(4) {
+                grid-column: 3 / 5;
+            }
+
+            .process-step:nth-child(5) {
+                grid-column: 1 / 3;
+            }
+
+            .process-step:nth-child(6) {
+                grid-column: 3 / 5;
+            }
+        }
+
+        /* Мобильные: 1 элемент в ряд (6 рядов по 1) */
+        @media (max-width: 600px) {
+            .process-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .process-step:nth-child(1),
+            .process-step:nth-child(2),
+            .process-step:nth-child(3),
+            .process-step:nth-child(4),
+            .process-step:nth-child(5),
+            .process-step:nth-child(6) {
+                grid-column: 1;
+            }
         }
 
         .process-step {
@@ -832,6 +880,13 @@
 
         .process-step:last-child::before {
             display: none;
+        }
+
+        /* Убираем линии на планшетах и мобильных */
+        @media (max-width: 900px) {
+            .process-step::before {
+                display: none;
+            }
         }
 
         .process-step h3 {
