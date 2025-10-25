@@ -246,6 +246,20 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
+            justify-items: center;
+        }
+
+        /* Для планшетов: центрируем одиночный элемент в последнем ряду */
+        @media (min-width: 769px) and (max-width: 1100px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .service-card:last-child:nth-child(3n+1) {
+                grid-column: 1 / -1;
+                max-width: 400px;
+                margin: 0 auto;
+            }
         }
 
         .service-card {
@@ -255,6 +269,7 @@
             text-align: center;
             box-shadow: var(--shadow);
             transition: all 0.3s ease;
+            width: 100%;
         }
 
         .service-card:hover {

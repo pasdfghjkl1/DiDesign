@@ -215,6 +215,20 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
+            justify-items: center;
+        }
+
+        /* Для планшетов: центрируем одиночные элементы в последнем ряду */
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .portfolio-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .portfolio-item:last-child:nth-child(odd) {
+                grid-column: 1 / -1;
+                max-width: 450px;
+                margin: 0 auto;
+            }
         }
         
         .portfolio-item {
@@ -225,6 +239,7 @@
             transition: all 0.3s ease;
             cursor: pointer;
             background: white;
+            width: 100%;
         }
         
         .portfolio-item:hover {

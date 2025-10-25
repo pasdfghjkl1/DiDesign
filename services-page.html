@@ -290,6 +290,20 @@
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 40px;
             margin-bottom: 80px;
+            justify-items: center;
+        }
+
+        /* Для планшетов: центрируем одиночный элемент в последнем ряду */
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .packages-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .package-card:last-child:nth-child(3n+1) {
+                grid-column: 1 / -1;
+                max-width: 450px;
+                margin: 0 auto;
+            }
         }
 
         /* Package Card */
@@ -302,6 +316,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
 
         .package-card:hover {
