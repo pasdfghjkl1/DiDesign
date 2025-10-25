@@ -238,6 +238,7 @@
         .hero-feature {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
             font-size: 1.1rem;
         }
@@ -1008,6 +1009,22 @@
             }
         }
 
+        /* Планшеты в вертикальной ориентации */
+        @media (min-width: 769px) and (max-width: 992px) {
+            .hero-features {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .hero-feature {
+                justify-content: center;
+                text-align: center;
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+
         @media (max-width: 768px) {
             .hamburger {
                 display: flex;
@@ -1041,6 +1058,14 @@
             .hero-features {
                 flex-direction: column;
                 gap: 15px;
+                align-items: center;
+            }
+
+            .hero-feature {
+                justify-content: center;
+                text-align: center;
+                width: 100%;
+                max-width: 300px;
             }
 
             .section-header h2 {
